@@ -1,0 +1,36 @@
+{
+  "name": "雪櫃菲林 Film Fridge Inventory",
+  "short_name": "雪櫃菲林",
+  "description": "底片攝影全生命週期管理 · Film Photography Lifecycle Tracker",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "lang": "zh-HK",
+  "categories": ["utilities", "photography", "lifestyle"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "入貨",
+      "short_name": "入貨",
+      "description": "快速新增菲林庫存",
+      "url": "./index.html?tab=fridge"
+    },
+    {
+      "name": "入機",
+      "short_name": "入機",
+      "description": "裝菲林入相機",
+      "url": "./index.html?tab=camera"
+    }
+  ]
+}

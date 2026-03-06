@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="FilmVault">
+<link rel="manifest" href="manifest.json">
+<title>FilmVault · 菲林倉</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=DM+Mono:wght@300;400;500&family=Noto+Sans+HK:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════
+   FILMVAULT — Neo-Brutalism × Kodak
+   White canvas · bold black borders · hard shadows
+═══════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --k-yellow:   #FFD100;
+  --k-yellow2:  #FFB81C;
+  --k-orange:   #F58220;
+  --k-orange2:  #D96D10;
+  --k-red:      #E31837;
+  --k-black:    #000000;
+  --bg:         #FFFDF7;
+  --bg2:        #FFF8E7;
+  --border:     #000000;
+  --shadow:     4px 4px 0px 0px #000000;
+  --shadow-sm:  3px 3px 0px 0px #000000;
+  --shadow-lg:  6px 6px 0px 0px #000000;
+  --c-load:     #FFD100;
+  --c-unload:   #6699CC;
+  --c-dev:      #FF9020;
+  --c-arch:     #2DBD7E;
+  --mono:    'DM Mono', monospace;
+  --display: 'Syne', sans-serif;
+  --body:    'Noto Sans HK', sans-serif;
+  --safe-b:  env(safe-area-inset-bottom, 0px);
+  --r: 14px;
+}
+
+html, body { height: 100%; overflow: hidden; background: var(--bg); }
+body { font-family: var(--body); color: var(--k-black); -webkit-font-smoothing: antialiased; }
+#root { height: 100%; }
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+
+.app { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+
+/* ─── TOPBAR ─── */
+.topbar {
+  flex-shrink: 0;
+  background: var(--k-yellow);
+  border-bottom: 3px solid var(--k-black);
+  padding: 0 10px; height: 58px;
+  display: flex; align-items: center; gap: 6px;
+  position: relative; z-index: 10;
+}
+
+/* CSS Logo */
+.logo-mark {
+  width: 32px; height: 32px; flex-shrink: 0;
+  background: #fff;
+  border-radius: 8px;
+  border: 2.5px solid var(--k-black);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  box-shadow: 2px 2px 0px 0px rgba(0,0,0,0.4);
+}
+
+
+
+.topbar-titles { display: flex; flex-direction: column; justify-content: center; min-width: 0; flex-shrink: 1; }
+.topbar-name { font-family: var(--display); font-size: 1.05rem; font-weight: 900; color: var(--k-black); letter-spacing: -0.5px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topbar-sub  { font-family: var(--mono); font-size: 0.42rem; color: rgba(0,0,0,0.5); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* IG link */
+.topbar-ig {
+  margin-left: auto;
+  margin-right: 4px;
+  display: flex; align-items: center; gap: 5px;
+  text-decoration: none;
+  background: var(--k-black);
+  color: var(--k-yellow);
+  padding: 4px 8px; border-radius: 20px;
+  border: 2.5px solid var(--k-black);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.08s, box-shadow 0.08s; flex-shrink: 0;
+}
+.topbar-ig:active { transform: translate(2px,2px); box-shadow: none; }
+.topbar-ig-icon { font-size: 0.8rem; }
+.topbar-ig-text { font-family: var(--mono); font-size: 0.5rem; color: var(--k-yellow); letter-spacing: 0.5px; font-weight: 700; }
+
+/* Right stat chips */
+.topbar-chips { display: flex; gap: 0; }
+.topbar-stat { text-align: center; padding: 0 6px; border-left: 2px solid rgba(0,0,0,0.15); }
+.topbar-stat-num   { font-family: var(--display); font-size: 1.1rem; font-weight: 900; color: var(--k-black); line-height: 1; display: block; }
+.topbar-stat-label { font-family: var(--mono); font-size: 0.4rem; color: rgba(0,0,0,0.5); letter-spacing: 1.5px; text-transform: uppercase; display: block; margin-top: 1px; }
+
+.view-container { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; background: var(--bg); position: relative; z-index: 20; }
+
+/* ─── BOTTOM NAV (5 tabs) ─── */
+.bottom-nav {
+  flex-shrink: 0; background: var(--k-yellow);
+  border-top: 3px solid var(--k-black);
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  padding-bottom: var(--safe-b);
+  position: relative; z-index: 10;
+}
+.nav-item { background: none; border: none; cursor: pointer; padding: 9px 2px 7px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: rgba(0,0,0,0.4); transition: color 0.15s; -webkit-tap-highlight-color: transparent; position: relative; }
+.nav-item.active { color: var(--k-black); }
+.nav-item.active::before { content: ''; position: absolute; top: 0; left: 15%; right: 15%; height: 3px; background: var(--bg); border-radius: 0 0 3px 3px; }
+.nav-icon  { font-size: 1.05rem; line-height: 1; }
+.nav-label { font-family: var(--mono); font-size: 0.42rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; }
+
+/* ══════════ SHARED COMPONENTS ══════════ */
+.sec-head { display: flex; align-items: center; padding: 12px 16px 9px; border-bottom: 2px solid var(--k-black); gap: 8px; position: sticky; top: 0; background: var(--bg); z-index: 5; }
+.sec-title { font-family: var(--mono); font-size: 0.54rem; letter-spacing: 3px; text-transform: uppercase; color: #555; flex: 1; font-weight: 700; }
+.sec-count { font-family: var(--display); font-size: 1.1rem; font-weight: 900; color: var(--k-black); background: var(--k-yellow); border: 2px solid var(--k-black); border-radius: 8px; padding: 1px 10px; box-shadow: var(--shadow-sm); }
+
+/* Neo-Brutalism Card */
+.card {
+  background: #fff;
+  border: 2.5px solid var(--k-black);
+  border-radius: var(--r);
+  padding: 14px 15px;
+  margin: 0 12px 10px;
+  box-shadow: var(--shadow);
+  transition: transform 0.08s, box-shadow 0.08s;
+  position: relative;
+}
+.card-title { font-family: var(--body); font-size: 0.95rem; font-weight: 900; color: var(--k-black); margin-bottom: 3px; }
+.card-sub   { font-family: var(--mono); font-size: 0.6rem; color: #666; }
+
+/* ─── FILM BUDDY EMOJI ─── */
+.film-buddy { font-size: 1.5rem; line-height: 1; flex-shrink: 0; }
+
+/* ─── CTA BUTTONS (Neo-Brutalism press effect) ─── */
+.btn-cta {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  background: var(--k-yellow);
+  border: 2.5px solid var(--k-black);
+  color: var(--k-black);
+  font-family: var(--display); font-size: 0.85rem; font-weight: 900;
+  padding: 9px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.08s, box-shadow 0.08s;
+  -webkit-tap-highlight-color: transparent; white-space: nowrap;
+}
+.btn-cta:active { transform: translate(3px,3px); box-shadow: none; }
+
+.fab {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: calc(100% - 24px); margin: 10px 12px;
+  background: var(--k-yellow);
+  color: var(--k-black);
+  border: 2.5px solid var(--k-black);
+  cursor: pointer;
+  padding: 15px 20px;
+  font-family: var(--display); font-size: 1rem; font-weight: 900;
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  transition: transform 0.08s, box-shadow 0.08s;
+  -webkit-tap-highlight-color: transparent;
+}
+.fab:active   { transform: translate(4px,4px); box-shadow: none; }
+.fab:disabled { background: #e8e8e8; color: #aaa; border-color: #aaa; box-shadow: none; cursor: not-allowed; }
+
+.btn-ghost {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  background: #fff;
+  border: 2px solid var(--k-black);
+  color: var(--k-black);
+  font-family: var(--mono); font-size: 0.57rem; letter-spacing: 1px; text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.08s, box-shadow 0.08s;
+  -webkit-tap-highlight-color: transparent; white-space: nowrap;
+}
+.btn-ghost:active { transform: translate(3px,3px); box-shadow: none; }
+
+.btn-danger {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #fff;
+  border: 2px solid var(--k-red);
+  color: var(--k-red);
+  font-family: var(--mono); font-size: 0.57rem; letter-spacing: 1px; text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 3px 3px 0px 0px var(--k-red);
+  transition: transform 0.08s, box-shadow 0.08s;
+  -webkit-tap-highlight-color: transparent; white-space: nowrap;
+}
+.btn-danger:active { transform: translate(3px,3px); box-shadow: none; }
+
+/* ─── PILLS ─── */
+.pill {
+  display: inline-block; font-family: var(--mono); font-size: 0.46rem;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 6px;
+  border: 2px solid var(--k-black);
+  font-weight: 700; background: #fff;
+}
+.pill.loaded     { background: var(--k-yellow);  border-color: var(--k-black); color: var(--k-black); }
+.pill.unloaded   { background: #D4E8FF;           border-color: var(--k-black); color: var(--k-black); }
+.pill.developing { background: #FFE0B2;           border-color: var(--k-black); color: var(--k-black); }
+.pill.archived   { background: #C8F7E0;           border-color: var(--k-black); color: var(--k-black); }
+.pill.expired    { background: var(--k-red);      border-color: var(--k-black); color: #fff; }
+.pill.low-stock  { background: #FFD0A0;           border-color: var(--k-black); color: var(--k-black); }
+.pill.posted     { background: #E8E8E8;           border-color: var(--k-black); color: #555; }
+
+/* ─── FORM ─── */
+.form-group { margin-bottom: 15px; }
+.form-label { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 0.54rem; letter-spacing: 2px; text-transform: uppercase; color: #444; margin-bottom: 7px; font-weight: 700; }
+.form-opt   { font-family: var(--mono); font-size: 0.42rem; color: #888; letter-spacing: 1px; padding: 1px 5px; border: 1.5px solid #bbb; border-radius: 4px; }
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: #fff;
+  border: 2px solid var(--k-black);
+  color: var(--k-black);
+  font-family: var(--mono); font-size: 0.88rem;
+  padding: 11px 13px;
+  border-radius: 10px;
+  outline: none; appearance: none; -webkit-appearance: none;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.12s, transform 0.08s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  box-shadow: 4px 4px 0px 0px var(--k-yellow);
+  outline: none;
+}
+.form-input::placeholder, .form-textarea::placeholder { color: #bbb; }
+.form-textarea { min-height: 70px; resize: none; line-height: 1.5; font-family: var(--body); font-size: 0.85rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-section-label {
+  font-family: var(--mono); font-size: 0.49rem; letter-spacing: 3px; text-transform: uppercase;
+  color: #888; margin: 4px 0 13px;
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 700;
+}
+.form-section-label::before, .form-section-label::after { content: ''; flex: 1; height: 2px; background: #e0e0e0; border-radius: 1px; }
+
+/* Price input */
+.price-wrap { position: relative; }
+.price-prefix { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-family: var(--mono); font-size: 0.88rem; color: var(--k-black); font-weight: 700; pointer-events: none; z-index: 1; }
+.price-input { padding-left: 26px !important; }
+
+/* ─── MODAL ─── */
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; display: flex; align-items: flex-end; justify-content: center; }
+.modal {
+  background: var(--bg);
+  width: 100%; max-width: 520px;
+  border-radius: 20px 20px 0 0;
+  border-top: 3px solid var(--k-black);
+  border-left: 3px solid var(--k-black);
+  border-right: 3px solid var(--k-black);
+  max-height: 92dvh;
+  display: flex; flex-direction: column;
+  animation: slideUp 0.26s cubic-bezier(0.32,0.72,0,1);
+  overflow: hidden;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-drag   { width: 40px; height: 4px; background: #ccc; border-radius: 2px; margin: 10px auto 0; flex-shrink: 0; border: 1.5px solid #bbb; }
+.modal-header { padding: 12px 18px 10px; border-bottom: 2px solid var(--k-black); flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; background: var(--k-yellow); }
+.modal-title  { font-family: var(--display); font-size: 1.1rem; font-weight: 900; color: var(--k-black); letter-spacing: -0.5px; }
+.modal-close  { background: var(--k-black); border: 2.5px solid var(--k-black); color: #fff; font-size: 0.78rem; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 8px; box-shadow: var(--shadow-sm); transition: transform 0.08s, box-shadow 0.08s; margin-left: 8px; flex-shrink: 0; }
+.modal-close:active { transform: translate(2px,2px); box-shadow: none; }
+.modal-body   { padding: 18px 18px 0; overflow-y: auto; flex: 1; }
+
+/* Sticky modal footer */
+.modal-footer {
+  flex-shrink: 0; position: sticky; bottom: 0;
+  background: var(--bg);
+  border-top: 2px solid var(--k-black);
+  padding: 12px 18px;
+  padding-bottom: calc(24px + var(--safe-b));
+  display: grid; grid-template-columns: 1fr 2fr; gap: 10px;
+  z-index: 10;
+}
+.modal-footer.single { grid-template-columns: 1fr; }
+.btn-modal-cancel {
+  background: #fff; border: 2px solid var(--k-black); color: var(--k-black);
+  font-family: var(--mono); font-size: 0.63rem; letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 14px; cursor: pointer; border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.btn-modal-cancel:active { transform: translate(3px,3px); box-shadow: none; }
+.btn-modal-ok {
+  background: var(--k-yellow); border: 2.5px solid var(--k-black); color: var(--k-black);
+  font-family: var(--display); font-size: 1rem; font-weight: 900;
+  padding: 14px; cursor: pointer; border-radius: 10px;
+  box-shadow: var(--shadow);
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.btn-modal-ok:active { transform: translate(4px,4px); box-shadow: none; }
+
+/* ─── FOLDER NAME ─── */
+.folder-box { background: #fff; border: 2px solid var(--k-black); color: var(--k-black); font-family: var(--mono); font-size: 0.73rem; padding: 11px 13px; border-radius: 10px; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; word-break: break-all; box-shadow: var(--shadow-sm); }
+.folder-text { flex: 1; line-height: 1.5; }
+.folder-copy-btn { background: var(--k-yellow); border: 2px solid var(--k-black); color: var(--k-black); font-family: var(--mono); font-size: 0.53rem; padding: 5px 8px; cursor: pointer; border-radius: 6px; letter-spacing: 1px; flex-shrink: 0; white-space: nowrap; font-weight: 700; box-shadow: 2px 2px 0 #000; transition: transform 0.08s, box-shadow 0.08s; }
+.folder-copy-btn:active { transform: translate(2px,2px); box-shadow: none; }
+
+/* ─── TOGGLE ─── */
+.toggle-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+.toggle { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track { position: absolute; inset: 0; background: #ddd; border-radius: 12px; cursor: pointer; transition: background 0.2s; border: 2px solid var(--k-black); }
+.toggle input:checked + .toggle-track { background: var(--k-yellow); }
+.toggle-track::after { content: ''; position: absolute; left: 3px; top: 2px; width: 14px; height: 14px; background: var(--bg); border-radius: 50%; transition: transform 0.2s; }
+.toggle input:checked + .toggle-track::after { transform: translateX(18px); background: var(--bg); }
+.toggle-label { font-family: var(--mono); font-size: 0.6rem; color: #555; letter-spacing: 1px; flex: 1; font-weight: 700; }
+
+/* ─── META / NOTES ─── */
+.meta-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.meta-tag  { font-family: var(--mono); font-size: 0.53rem; color: #555; background: #f0f0f0; border: 1.5px solid #bbb; padding: 2px 7px; border-radius: 6px; }
+.notes-display { font-family: var(--mono); font-size: 0.63rem; color: #666; margin-top: 5px; font-style: italic; border-left: 3px solid var(--k-yellow); padding-left: 8px; }
+
+/* ─── MISC ─── */
+.empty { text-align: center; padding: 40px 20px; font-family: var(--mono); font-size: 0.58rem; color: #aaa; letter-spacing: 2px; text-transform: uppercase; line-height: 2.4; }
+.empty-icon { font-size: 2.8rem; display: block; margin-bottom: 12px; opacity: 0.35; }
+.divider { height: 6px; background: var(--k-yellow); border-top: 2px solid var(--k-black); border-bottom: 2px solid var(--k-black); margin: 4px 0 0; }
+
+/* ─── STOCK QUANTITIES ─── */
+.stock-qty      { font-family: var(--display); font-size: 2rem; font-weight: 900; color: var(--k-black); line-height: 1; }
+.stock-qty.low  { color: var(--k-red); }
+.stock-qty.zero { color: #ccc; }
+.qty-row { display: flex; align-items: center; gap: 5px; }
+.qty-btn { width: 28px; height: 24px; background: #fff; border: 2px solid var(--k-black); color: var(--k-black); font-size: 1rem; font-weight: 900; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: transform 0.08s, box-shadow 0.08s; -webkit-tap-highlight-color: transparent; box-shadow: 2px 2px 0 #000; }
+.qty-btn:active { transform: translate(2px,2px); box-shadow: none; }
+
+.card-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 11px; padding-top: 9px; border-top: 1.5px solid #eee; }
+.cam-manage-row { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1.5px solid #eee; }
+.cam-manage-name { flex: 1; font-family: var(--body); font-size: 0.85rem; color: var(--k-black); font-weight: 700; }
+.cam-manage-sub  { font-family: var(--mono); font-size: 0.53rem; color: #888; }
+
+/* ══════════════════════════════════════
+   LOG TAB
+══════════════════════════════════════ */
+.log-wrap { padding-bottom: 24px; background: var(--bg); }
+
+/* 3-column dashboard */
+.dashboard-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; background: var(--bg); border-bottom: 3px solid var(--k-black); }
+.dash-card { background: var(--bg2); padding: 14px 10px 12px; }
+.dash-card-label { font-family: var(--mono); font-size: 0.44rem; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 4px; font-weight: 700; }
+.dash-card-value { font-family: var(--display); font-size: 1.5rem; font-weight: 900; color: var(--k-black); line-height: 1; }
+.dash-card-sub   { font-family: var(--mono); font-size: 0.46rem; color: #888; margin-top: 3px; }
+
+/* Top 5 */
+.top5-block  { background: #fff; border-bottom: 2px solid var(--k-black); padding: 12px 16px 13px; }
+.top5-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+.top5-title  { font-family: var(--mono); font-size: 0.5rem; letter-spacing: 3px; text-transform: uppercase; color: #666; flex: 1; font-weight: 700; }
+.top5-title-month { font-family: var(--display); font-size: 0.75rem; font-weight: 900; color: var(--k-black); background: var(--k-yellow); border: 2px solid var(--k-black); border-radius: 6px; padding: 1px 8px; }
+.top5-list { display: flex; flex-direction: column; gap: 7px; }
+.top5-row  { display: flex; align-items: center; gap: 8px; }
+.top5-rank { font-family: var(--display); font-size: 0.68rem; font-weight: 900; color: #bbb; width: 16px; text-align: right; flex-shrink: 0; }
+.top5-rank.gold{color:#DAA520;} .top5-rank.silver{color:#888;} .top5-rank.bronze{color:#CD7F32;}
+.top5-bar-wrap { flex: 1; background: #eee; height: 7px; border-radius: 4px; overflow: hidden; border: 1px solid #ddd; }
+.top5-bar{height:100%;background:var(--k-yellow);border-radius:3px;transition:width 0.4s ease;}
+.top5-bar.silver{background:#aaa;} .top5-bar.bronze{background:#CD7F32;} .top5-bar.rest{background:#ccc;}
+.top5-film-name { font-family: var(--mono); font-size: 0.6rem; color: #444; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px; font-weight: 700; }
+.top5-count { font-family: var(--display); font-size: 0.75rem; font-weight: 900; color: var(--k-black); min-width: 18px; text-align: right; flex-shrink: 0; }
+.top5-empty { font-family: var(--mono); font-size: 0.58rem; color: #aaa; letter-spacing: 2px; text-transform: uppercase; text-align: center; padding: 4px 0; }
+
+/* Calendar */
+.cal-nav { display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-bottom: 2px solid var(--k-black); background: var(--bg); position: sticky; top: 0; z-index: 5; }
+.cal-nav-btn { background: #fff; border: 2px solid var(--k-black); color: var(--k-black); font-family: var(--mono); font-size: 1rem; font-weight: 900; width: 32px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 7px; box-shadow: 2px 2px 0 #000; -webkit-tap-highlight-color: transparent; transition: transform 0.08s, box-shadow 0.08s; }
+.cal-nav-btn:active { transform: translate(2px,2px); box-shadow: none; }
+.cal-month-label { flex: 1; text-align: center; font-family: var(--display); font-size: 0.95rem; font-weight: 900; color: var(--k-black); }
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 1px; background: var(--bg); border-bottom: 1px solid var(--k-black); }
+.cal-dow  { background: var(--k-yellow); text-align: center; padding: 6px 2px; font-family: var(--mono); font-size: 0.48rem; color: var(--k-black); font-weight: 900; }
+.cal-cell { background: #fff; min-height: 46px; padding: 5px 3px 3px; cursor: default; transition: background 0.1s; }
+.cal-cell.has-event { cursor: pointer; }
+.cal-cell.has-event:active { background: var(--bg2); }
+.cal-cell.other-month { opacity: 0.25; pointer-events: none; background: #f5f5f5; }
+.cal-cell.today .cal-date { color: var(--k-black); font-weight: 900; background: var(--k-yellow); border-radius: 4px; }
+.cal-cell.selected { background: var(--bg2) !important; outline: 2px solid var(--k-black); outline-offset: -2px; }
+.cal-date { font-family: var(--mono); font-size: 0.56rem; color: #888; text-align: center; margin-bottom: 2px; padding: 1px 2px; }
+.cal-dots { display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; padding: 0 2px; }
+.cal-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.cal-dot.stock{background:#6699CC;} .cal-dot.load{background:var(--k-yellow); border: 1px solid #ccc;} .cal-dot.unload,.cal-dot.note{background:#ccc;}
+.cal-dot.lab{background:var(--c-dev);} .cal-dot.archive{background:var(--c-arch);} .cal-dot.post{background:#999;}
+
+/* Day detail */
+.day-panel { border-top: 2px solid var(--k-black); background: var(--bg2); }
+.day-panel-header { padding: 9px 16px 7px; background: var(--k-yellow); border-bottom: 2px solid var(--k-black); display: flex; align-items: baseline; gap: 8px; }
+.day-panel-date  { font-family: var(--display); font-size: 0.95rem; font-weight: 900; color: var(--k-black); }
+.day-panel-count { font-family: var(--mono); font-size: 0.5rem; color: rgba(0,0,0,0.55); letter-spacing: 2px; text-transform: uppercase; }
+.day-events-scroll { display: flex; gap: 8px; padding: 12px 16px 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.day-events-scroll::-webkit-scrollbar { display: none; }
+.day-event-card { flex-shrink: 0; background: #fff; border: 2px solid var(--k-black); border-radius: 10px; padding: 10px 12px; min-width: 145px; max-width: 185px; box-shadow: var(--shadow-sm); }
+.day-event-type { font-family: var(--mono); font-size: 0.48rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; font-weight: 900; }
+.day-event-type.stock{color:#6699CC;} .day-event-type.load{color:#888; background: var(--k-yellow); padding: 1px 5px; border-radius: 4px; display: inline-block;}
+.day-event-main { font-family: var(--body); font-size: 0.8rem; font-weight: 900; color: var(--k-black); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.day-event-sub  { font-family: var(--mono); font-size: 0.56rem; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.day-event-time { font-family: var(--mono); font-size: 0.48rem; color: #bbb; margin-top: 5px; }
+.cal-hint { text-align: center; padding: 18px 16px; font-family: var(--mono); font-size: 0.53rem; letter-spacing: 2px; text-transform: uppercase; color: #bbb; border-top: 1px solid #eee; }
+
+/* Dual log section */
+.log-split { display: flex; flex-direction: column; gap: 0; }
+.log-section-head { display: flex; align-items: center; padding: 10px 16px 8px; border-bottom: 2px solid var(--k-black); gap: 8px; background: var(--bg2); }
+.log-section-title { font-family: var(--mono); font-size: 0.52rem; letter-spacing: 3px; text-transform: uppercase; color: #555; flex: 1; font-weight: 700; }
+.log-section-count { font-family: var(--display); font-size: 0.95rem; font-weight: 900; color: var(--k-black); }
+.log-item { display: flex; gap: 11px; padding: 9px 16px; border-bottom: 1px solid #eee; align-items: flex-start; }
+.log-dot-col { padding-top: 4px; }
+.log-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; border: 1.5px solid var(--k-black); }
+.log-dot.stock{background:#6699CC;} .log-dot.load{background:var(--k-yellow);}
+.log-body { flex: 1; min-width: 0; }
+.log-main { font-family: var(--body); font-size: 0.83rem; font-weight: 700; color: var(--k-black); margin-bottom: 2px; }
+.log-detail { font-family: var(--mono); font-size: 0.58rem; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.log-price  { font-family: var(--mono); font-size: 0.56rem; color: #555; margin-top: 2px; font-weight: 700; }
+.log-time   { font-family: var(--mono); font-size: 0.48rem; color: #bbb; flex-shrink: 0; padding-top: 3px; }
+
+/* ══════════════════════════════════════
+   BADGES TAB
+══════════════════════════════════════ */
+.badges-wrap { padding: 0 0 24px; background: var(--bg); }
+.badge-category { margin: 0 12px 16px; }
+.badge-cat-title { font-family: var(--mono); font-size: 0.5rem; letter-spacing: 3px; text-transform: uppercase; color: #666; padding: 14px 4px 10px; border-bottom: 2px solid var(--k-black); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-weight: 900; }
+.badge-cat-icon { font-size: 0.9rem; }
+.badge-row { display: flex; gap: 8px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.badge-row::-webkit-scrollbar { display: none; }
+.badge-item { flex-shrink: 0; width: 72px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.badge-icon-wrap {
+  width: 58px; height: 58px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+  border: 2.5px solid var(--k-black); background: #f0f0f0;
+  transition: all 0.2s; position: relative;
+  box-shadow: var(--shadow-sm);
+}
+.badge-item.unlocked .badge-icon-wrap { background: var(--k-yellow); box-shadow: var(--shadow); }
+.badge-item.locked .badge-icon-wrap { opacity: 0.3; filter: grayscale(1); box-shadow: none; }
+.badge-check {
+  position: absolute; bottom: -2px; right: -2px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #2DBD7E; color: #fff;
+  font-size: 0.6rem; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--k-black);
+  box-shadow: 1px 1px 0 #000;
+}
+.badge-name { font-family: var(--mono); font-size: 0.47rem; letter-spacing: 0.5px; color: #777; text-align: center; line-height: 1.4; max-width: 72px; font-weight: 700; }
+.badge-item.unlocked .badge-name { color: var(--k-black); }
+.badge-progress-bar { width: 100%; height: 4px; background: #ddd; border-radius: 2px; overflow: hidden; margin-top: 2px; border: 1px solid #bbb; }
+.badge-progress-fill { height: 100%; background: var(--k-yellow); border-radius: 2px; transition: width 0.5s ease; }
+.badge-item.locked .badge-progress-fill { background: #ccc; }
+.badge-target { font-family: var(--mono); font-size: 0.42rem; color: #aaa; font-weight: 700; }
+
+/* TOAST */
+.toast-wrap { position: fixed; bottom: calc(64px + var(--safe-b) + 12px); left: 50%; transform: translateX(-50%); z-index: 200; pointer-events: none; }
+.toast { background: var(--bg); color: var(--k-yellow); font-family: var(--mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 1px; padding: 10px 18px; border-radius: 20px; border: 2px solid var(--k-black); white-space: nowrap; opacity: 0; transform: translateY(8px); transition: all 0.25s ease; max-width: calc(100vw - 40px); overflow: hidden; text-overflow: ellipsis; }
+.toast.show { opacity: 1; transform: translateY(0); }
+
+select option { background: #fff; color: var(--k-black); }
+
+/* ─── LANG MODAL ─── */
+.lang-modal-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+  z-index: 300; display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.lang-modal-box {
+  background: var(--bg); border: 3px solid var(--k-black); border-radius: 20px;
+  padding: 32px 24px; width: 100%; max-width: 380px;
+  box-shadow: var(--shadow-lg); animation: fadeInScale 0.28s ease; position: relative;
+}
+@keyframes fadeInScale { from{opacity:0;transform:scale(0.94);}to{opacity:1;transform:scale(1);} }
+.lang-modal-title {
+  font-family: var(--display); font-size: 1.3rem; font-weight: 900;
+  color: var(--k-black); text-align: center; line-height: 1.35; margin-bottom: 6px;
+}
+.lang-modal-sub {
+  font-family: var(--mono); font-size: 0.5rem; color: #888;
+  text-align: center; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 26px;
+}
+.lang-btn {
+  width: 100%; padding: 15px 18px; margin-bottom: 10px;
+  background: #fff; border: 2.5px solid var(--k-black); border-radius: 12px;
+  font-family: var(--display); font-size: 1rem; font-weight: 900;
+  color: var(--k-black); cursor: pointer; text-align: left;
+  box-shadow: var(--shadow-sm); transition: transform 0.08s, box-shadow 0.08s, background 0.1s;
+  display: flex; align-items: center; justify-content: space-between;
+  -webkit-tap-highlight-color: transparent;
+}
+.lang-btn:active { background: var(--k-yellow); transform: translate(3px,3px); box-shadow: none; }
+.lang-btn-sub { font-family: var(--mono); font-size: 0.52rem; color: #999; font-weight: 400; letter-spacing: 1px; }
+.lang-btn:last-child { margin-bottom: 0; }
+/* Settings gear */
+.topbar-settings {
+  background: var(--k-black); color: var(--k-yellow);
+  border: 2.5px solid var(--k-black); border-radius: 50%;
+  width: 28px; height: 28px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 0.7rem;
+  box-shadow: var(--shadow-sm); transition: transform 0.08s, box-shadow 0.08s;
+  -webkit-tap-highlight-color: transparent;
+}
+.topbar-settings:active { transform: translate(2px,2px); box-shadow: none; }
+
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useMemo } = React;
+
+
+// ═══════════════════════════════════════════════════════════════
+// i18n — COMPLETE TRANSLATION DICTIONARY
+// ═══════════════════════════════════════════════════════════════
+const translations = {
+  'zh-HK': {
+    app_title:'FilmVault', app_subtitle:'菲林倉',
+    stat_stock:'庫存', stat_loaded:'服役',
+    nav_stock:'片倉', nav_shoot:'上機', nav_lab:'沖曬', nav_log:'記錄', nav_badges:'勳章',
+    stock_total_rolls:'倉底存貨', stock_film_types:'款式', stock_expired_count:'過咗期',
+    btn_add_stock:'📦 買多咗',
+    title_stock_list:'🧊 庫存列表',
+    empty_stock:'雪櫃吉咗', empty_stock_sub:'撳「入貨」入嘢啦',
+    pill_expired:'過期', pill_low_stock:'低水',
+    modal_add_stock:'入貨 Add Stock',
+    quick_select:'快速揀選 · Quick Pick',
+    label_optional:'可選', label_required:'必填',
+    form_brand:'品牌 BRAND', opt_brand:'— 品牌 —',
+    form_film:'型號 FILM', opt_film:'— 型號 —', opt_film_first:'— 先揀品牌 —',
+    form_confirm_name:'填入菲林名稱 FILM NAME',
+    ph_film_name:'例：Kodak Portra 800',
+    form_qty:'數量 QTY', form_price:'購買價格 PRICE',
+    section_optional:'其他資料 · Optional',
+    form_expiry:'有效期 EXPIRY',
+    btn_cancel:'取消', btn_confirm_stock:'✅ 搞掂入雪櫃',
+    btn_load_film:'📸 餵相機', btn_load_empty:'📸 餵相機（無存貨）',
+    btn_manage_cam:'管理機身',
+    title_loaded:'📷 服役中', empty_loaded:'而家冇片上咗機',
+    pill_loaded:'拍緊',
+    btn_notes:'✏ 寫低啲嘢', btn_unload:'🎞️ 影完退片',
+    title_unloaded:'⏳ 等拎去沖', empty_unloaded:'無菲林等緊沖',
+    pill_unloaded:'已出片',
+    btn_send_lab:'🧪 拎去沖',
+    modal_load_film:'落片上機 Load Film',
+    form_select_film:'揀菲林 FILM', tag_expired:'[過咗期]',
+    form_select_cam:'揀相機 CAMERA', opt_cam:'— 揀部舊機 —',
+    form_new_cam:'未有就新增', ph_cam:'e.g. Leica M6、Nikon FM2',
+    section_tags:'拍攝備忘 · 可選填',
+    form_theme:'影咩 THEME', ph_theme:'e.g. 生日Party、街拍',
+    form_location:'喺邊度', ph_location:'e.g. 西環',
+    form_people:'同邊個', ph_people:'e.g. Mary',
+    btn_confirm_load:'✅ 上彈',
+    modal_notes:'拍攝手記',
+    form_notes:'手記 NOTES', ph_notes:'e.g. 4月去日本、試新鏡頭...',
+    btn_save:'Save',
+    modal_send_lab:'拎去沖 Send to Lab',
+    form_lab_name:'邊間舖 LAB', ph_lab_name:'e.g. Megatoni、自己沖',
+    form_dev_price:'沖費 DEV PRICE',
+    btn_confirm:'搞掂',
+    modal_manage_cam:'管理機身', empty_cam:'仲未有相機',
+    cam_status_loaded:'食緊：', cam_status_empty:'空置（吉嘅）',
+    btn_delete:'剷走',
+    cam_delete_hint:'＊食緊菲林嘅機無得剷，退咗片先啦',
+    btn_close:'閂埋',
+    title_developing:'🧪 沖緊', empty_developing:'無菲林喺舖頭',
+    pill_developing:'沖緊',
+    btn_archive:'📁 收相歸檔',
+    title_archived:'📁 已經入落硬碟', empty_archived:'未有歸檔',
+    pill_archived:'已整理', pill_posted:'出咗Post',
+    btn_copy:'COPY',
+    toggle_posted:'上咗網 ✓', toggle_ready:'未出Post',
+    modal_archive:'整理入庫 Archive',
+    form_auto_name:'電腦改名 AUTO', form_custom_name:'自己改名',
+    form_link:'下載連結',
+    btn_confirm_archive:'✅ 搞掂收相',
+    dash_spend:'💰 今個月洗咗',
+    dash_load:'📷 今個月入機',
+    dash_buy:'📦 今個月買咗',
+    unit_roll:'筒',
+    title_top5:'今個月最常影 TOP 5', empty_top5:'今個月未開過機',
+    days_of_week:['日','一','二','三','四','五','六'],
+    cal_hint:'↑ 㩒個日子睇下做過咩',
+    cal_empty:'嗰日無買又無影',
+    title_recent_stock:'📥 最近入貨', empty_recent_stock:'無入貨紀錄',
+    title_recent_load:'📷 最近上彈', empty_recent_load:'無上彈紀錄',
+    log_type_stock:'入貨', log_type_load:'上彈', log_type_note:'手記',
+    log_type_unload:'出片', log_type_lab:'送沖', log_type_archive:'入庫', log_type_post:'上傳',
+    title_badges:'威水史',
+    subtitle_badges:'ACHIEVEMENTS · 記錄你嘅燒錢之路',
+    cat_hoarded:'囤片達人', cat_brands:'品牌試伏器', cat_loaded:'快門狂人',
+    cat_months:'長情攝影佬', cat_spent:'敗家仔',
+    cat_hoarded_desc:'買咗幾多卷', cat_brands_desc:'試過幾多個牌子',
+    cat_loaded_desc:'影咗幾多筒', cat_months_desc:'堅持咗幾多個月', cat_spent_desc:'洗咗幾多錢',
+    tier_hoarded:['入門買家','囤片新手','菲林收藏家','囤積狂','菲林大倉'],
+    tier_brands:['初探品牌','品牌入門','多品牌玩家','品牌鑑賞家','試勻全地球'],
+    tier_loaded:['第一次上彈','菲林發燒友','快門上癮','裝片達人','菲林狂魔'],
+    tier_months:['啱啱起步','三個月連影','半年無斷','長期戰士','全年狂影'],
+    tier_spent:['初級倒錢','中級燒錢','高級燒錢','窮到燶','破產攝影師'],
+    err_film_name:'寫返個名先啦（必填）',
+    err_price:'入返個價錢啦（必填）',
+    err_select_film:'揀隻菲林先',
+    err_select_cam:'揀相機或者打個名落去',
+    msg_note_saved:'✓ 手記更新咗',
+    err_lab_name:'話我知邊間沖吖',
+    err_dev_price:'沖費幾多錢呀（必填）',
+    err_cam_loaded:'呢部機仲有片喺度，先出片先',
+    msg_posted:'✓ Mark咗做出咗Post',
+    msg_copied:'✓ 複製咗', err_copy:'自己Highlight嚟Copy啦',
+  },
+  'zh-TW': {
+    app_title:'FilmVault', app_subtitle:'底片庫',
+    stat_stock:'庫存', stat_loaded:'服役',
+    nav_stock:'庫存', nav_shoot:'拍攝', nav_lab:'沖洗', nav_log:'日誌', nav_badges:'徽章',
+    stock_total_rolls:'庫存總卷', stock_film_types:'底片種類', stock_expired_count:'已過期',
+    btn_add_stock:'📦 補充庫存',
+    title_stock_list:'🧊 庫存列表',
+    empty_stock:'庫存空空如也', empty_stock_sub:'點擊「入庫」開始',
+    pill_expired:'過期', pill_low_stock:'低庫存',
+    modal_add_stock:'補充庫存 Add Stock',
+    quick_select:'快速選擇 · Quick Select',
+    label_optional:'可選', label_required:'必填',
+    form_brand:'品牌 BRAND', opt_brand:'— 品牌 —',
+    form_film:'型號 FILM', opt_film:'— 型號 —', opt_film_first:'— 先選品牌 —',
+    form_confirm_name:'確認或自訂入庫名稱 CONFIRM OR CUSTOMIZE',
+    ph_film_name:'例如：Kodak Portra 800...',
+    form_qty:'數量 QTY', form_price:'購買價格 PRICE',
+    section_optional:'可選欄位 · Optional',
+    form_expiry:'有效期限 EXPIRY',
+    btn_cancel:'取消', btn_confirm_stock:'✅ 確認入庫',
+    btn_load_film:'📸 裝入相機', btn_load_empty:'📸 裝入相機（庫存不足）',
+    btn_manage_cam:'管理相機',
+    title_loaded:'📷 服役中', empty_loaded:'機身目前空置',
+    pill_loaded:'服役中',
+    btn_notes:'✏ 備註', btn_unload:'🎞️ 安全退片',
+    title_unloaded:'⏳ 等待送沖', empty_unloaded:'暫無等待送沖的底片',
+    pill_unloaded:'已退片',
+    btn_send_lab:'🧪 送交沖曬',
+    modal_load_film:'裝入相機 Load Film',
+    form_select_film:'選擇底片 FILM', tag_expired:'[已過期]',
+    form_select_cam:'選擇相機 CAMERA', opt_cam:'— 選擇已有相機 —',
+    form_new_cam:'或新增相機', ph_cam:'e.g. Leica M6、Nikon FM2',
+    section_tags:'拍攝標記 · 全部可選',
+    form_theme:'主題 THEME', ph_theme:'e.g. 生日派對、街拍',
+    form_location:'地點', ph_location:'e.g. 西門町',
+    form_people:'在場人士', ph_people:'e.g. Mary',
+    btn_confirm_load:'✅ 確認裝片',
+    modal_notes:'拍攝備註',
+    form_notes:'備註 NOTES', ph_notes:'e.g. 4月京都行、試用新鏡頭...',
+    btn_save:'儲存',
+    modal_send_lab:'送交沖曬 Send to Lab',
+    form_lab_name:'沖洗店 LAB NAME', ph_lab_name:'e.g. 台北影像、自己沖',
+    form_dev_price:'沖洗費用 DEV PRICE',
+    btn_confirm:'確認送出',
+    modal_manage_cam:'管理相機', empty_cam:'尚未新增相機紀錄',
+    cam_status_loaded:'裝片中：', cam_status_empty:'空置',
+    btn_delete:'刪除',
+    cam_delete_hint:'＊服役中的相機無法刪除，請先退片',
+    btn_close:'關閉',
+    title_developing:'🧪 沖洗中', empty_developing:'目前無底片正在沖洗',
+    pill_developing:'沖洗中',
+    btn_archive:'📁 數位歸檔',
+    title_archived:'📁 已歸檔', empty_archived:'尚無歸檔紀錄',
+    pill_archived:'已歸檔', pill_posted:'已發佈',
+    btn_copy:'COPY',
+    toggle_posted:'已發佈 ✓', toggle_ready:'待發佈',
+    modal_archive:'數位歸檔 Archive',
+    form_auto_name:'自動命名 AUTO NAME', form_custom_name:'自訂命名',
+    form_link:'下載連結',
+    btn_confirm_archive:'✅ 確認歸檔',
+    dash_spend:'💰 本月總消費',
+    dash_load:'📷 本月裝片',
+    dash_buy:'📦 本月買片',
+    unit_roll:'卷',
+    title_top5:'本月最常用底片 TOP 5', empty_top5:'本月暫無裝片紀錄',
+    days_of_week:['日','一','二','三','四','五','六'],
+    cal_hint:'↑ 點選日期查看當日紀錄',
+    cal_empty:'當日無入庫或裝片紀錄',
+    title_recent_stock:'📥 最近入庫', empty_recent_stock:'暫無入庫紀錄',
+    title_recent_load:'📷 最近裝片', empty_recent_load:'暫無裝片紀錄',
+    log_type_stock:'入庫', log_type_load:'裝片', log_type_note:'備註',
+    log_type_unload:'退片', log_type_lab:'送沖', log_type_archive:'歸檔', log_type_post:'發佈',
+    title_badges:'成就徽章',
+    subtitle_badges:'ACHIEVEMENTS · 解鎖你的拍攝里程碑',
+    cat_hoarded:'囤片達人', cat_brands:'品牌探索者', cat_loaded:'快門戰士',
+    cat_months:'持之以恆', cat_spent:'敗家攝影師',
+    cat_hoarded_desc:'買底片數量', cat_brands_desc:'解鎖品牌數量',
+    cat_loaded_desc:'裝片數量', cat_months_desc:'有裝片的月份數', cat_spent_desc:'總消費金額',
+    tier_hoarded:['入門買家','囤片新手','底片收藏家','囤積狂','底片金庫'],
+    tier_brands:['初探品牌','品牌入門','多品牌玩家','品牌鑑賞家','全品牌收集'],
+    tier_loaded:['初次裝片','底片愛好者','快門上癮','裝片達人','底片狂魔'],
+    tier_months:['起步','三月連拍','半年堅持','長期攝影人','全年不停拍'],
+    tier_spent:['初級敗家','中級燒錢','高級燒錢','重度燒錢','散盡家財'],
+    err_film_name:'請填寫底片名稱（必填）',
+    err_price:'請輸入購買價格（必填）',
+    err_select_film:'請選擇底片',
+    err_select_cam:'請選擇或輸入相機名稱',
+    msg_note_saved:'✓ 備註已更新',
+    err_lab_name:'請輸入沖洗店名稱',
+    err_dev_price:'請輸入沖洗費用（必填）',
+    err_cam_loaded:'此相機有底片服役中，請先退片',
+    msg_posted:'✓ 標記為已發佈',
+    msg_copied:'✓ 已複製', err_copy:'請手動選取複製',
+  },
+  'zh-CN': {
+    app_title:'FilmVault', app_subtitle:'胶片库',
+    stat_stock:'库存', stat_loaded:'在用',
+    nav_stock:'库存', nav_shoot:'拍摄', nav_lab:'冲洗', nav_log:'日志', nav_badges:'徽章',
+    stock_total_rolls:'库存总卷', stock_film_types:'胶片种类', stock_expired_count:'已过期',
+    btn_add_stock:'📦 补充库存',
+    title_stock_list:'🧊 库存列表',
+    empty_stock:'库存空空如也', empty_stock_sub:'点击「入库」开始',
+    pill_expired:'过期', pill_low_stock:'低库存',
+    modal_add_stock:'补充库存 Add Stock',
+    quick_select:'快速选择 · Quick Select',
+    label_optional:'可选', label_required:'必填',
+    form_brand:'品牌 BRAND', opt_brand:'— 品牌 —',
+    form_film:'型号 FILM', opt_film:'— 型号 —', opt_film_first:'— 先选品牌 —',
+    form_confirm_name:'确认或自定义入库名称 CONFIRM OR CUSTOMIZE',
+    ph_film_name:'例：Kodak Portra 800',
+    form_qty:'数量 QTY', form_price:'购买价格 PRICE',
+    section_optional:'可选字段 · Optional',
+    form_expiry:'有效期限 EXPIRY',
+    btn_cancel:'取消', btn_confirm_stock:'✅ 确认入库',
+    btn_load_film:'📸 装入相机', btn_load_empty:'📸 装入相机（库存不足）',
+    btn_manage_cam:'管理相机',
+    title_loaded:'📷 服役中', empty_loaded:'机身目前空置',
+    pill_loaded:'服役中',
+    btn_notes:'✏ 备注', btn_unload:'🎞️ 安全退片',
+    title_unloaded:'⏳ 等待送洗', empty_unloaded:'暂无等待送洗的胶片',
+    pill_unloaded:'已退片',
+    btn_send_lab:'🧪 送交冲洗',
+    modal_load_film:'装入相机 Load Film',
+    form_select_film:'选择胶片 FILM', tag_expired:'[已过期]',
+    form_select_cam:'选择相机 CAMERA', opt_cam:'— 选择已有相机 —',
+    form_new_cam:'或新增相机', ph_cam:'e.g. Leica M6、Nikon FM2',
+    section_tags:'拍摄标记 · 全部可选',
+    form_theme:'主题 THEME', ph_theme:'e.g. 生日派对、街拍',
+    form_location:'地点', ph_location:'e.g. 外滩',
+    form_people:'在场人士', ph_people:'e.g. 小明',
+    btn_confirm_load:'✅ 确认装片',
+    modal_notes:'拍摄备注',
+    form_notes:'备注 NOTES', ph_notes:'e.g. 4月出行、试用新镜头...',
+    btn_save:'保存',
+    modal_send_lab:'送交冲洗 Send to Lab',
+    form_lab_name:'冲洗店 LAB NAME', ph_lab_name:'e.g. 某某冲洗店、自冲',
+    form_dev_price:'冲洗费用 DEV PRICE',
+    btn_confirm:'确认送出',
+    modal_manage_cam:'管理相机', empty_cam:'尚未新增相机记录',
+    cam_status_loaded:'装片中：', cam_status_empty:'空置',
+    btn_delete:'删除',
+    cam_delete_hint:'＊服役中的相机无法删除，请先退片',
+    btn_close:'关闭',
+    title_developing:'🧪 冲洗中', empty_developing:'目前无胶片正在冲洗',
+    pill_developing:'冲洗中',
+    btn_archive:'📁 数码归档',
+    title_archived:'📁 已归档', empty_archived:'尚无归档记录',
+    pill_archived:'已归档', pill_posted:'已发布',
+    btn_copy:'COPY',
+    toggle_posted:'已发布 ✓', toggle_ready:'待发布',
+    modal_archive:'数码归档 Archive',
+    form_auto_name:'自动命名 AUTO NAME', form_custom_name:'自定义命名',
+    form_link:'下载链接',
+    btn_confirm_archive:'✅ 确认归档',
+    dash_spend:'💰 本月总消费',
+    dash_load:'📷 本月装片',
+    dash_buy:'📦 本月买片',
+    unit_roll:'卷',
+    title_top5:'本月最常用胶片 TOP 5', empty_top5:'本月暂无装片记录',
+    days_of_week:['日','一','二','三','四','五','六'],
+    cal_hint:'↑ 点击日期查看当日记录',
+    cal_empty:'当日无入库或装片记录',
+    title_recent_stock:'📥 最近入库', empty_recent_stock:'暂无入库记录',
+    title_recent_load:'📷 最近装片', empty_recent_load:'暂无装片记录',
+    log_type_stock:'入库', log_type_load:'装片', log_type_note:'备注',
+    log_type_unload:'退片', log_type_lab:'送洗', log_type_archive:'归档', log_type_post:'发布',
+    title_badges:'成就徽章',
+    subtitle_badges:'ACHIEVEMENTS · 解锁你的拍摄里程碑',
+    cat_hoarded:'囤片达人', cat_brands:'品牌探索者', cat_loaded:'快门战士',
+    cat_months:'持之以恒', cat_spent:'败家摄影师',
+    cat_hoarded_desc:'买胶片数量', cat_brands_desc:'解锁品牌数量',
+    cat_loaded_desc:'装片数量', cat_months_desc:'有装片的月份数', cat_spent_desc:'总消费金额',
+    tier_hoarded:['入门买家','囤片新手','胶片收藏家','囤积狂','胶片金库'],
+    tier_brands:['初探品牌','品牌入门','多品牌玩家','品牌鉴赏家','全品牌收集'],
+    tier_loaded:['初次装片','胶片爱好者','快门上瘾','装片达人','胶片狂魔'],
+    tier_months:['起步','三月连拍','半年坚持','长期摄影人','全年不停拍'],
+    tier_spent:['初级败家','中级烧钱','高级烧钱','重度烧钱','散尽家财'],
+    err_film_name:'请填写胶片名称（必填）',
+    err_price:'请输入购买价格（必填）',
+    err_select_film:'请选择胶片',
+    err_select_cam:'请选择或输入相机名称',
+    msg_note_saved:'✓ 备注已更新',
+    err_lab_name:'请输入冲洗店名称',
+    err_dev_price:'请输入冲洗费用（必填）',
+    err_cam_loaded:'此相机有胶片服役中，请先退片',
+    msg_posted:'✓ 标记为已发布',
+    msg_copied:'✓ 已复制', err_copy:'请手动选择复制',
+  },
+  'en': {
+    app_title:'FilmVault', app_subtitle:'Film Inventory',
+    stat_stock:'Stock', stat_loaded:'Loaded',
+    nav_stock:'Stock', nav_shoot:'Shoot', nav_lab:'Lab', nav_log:'Log', nav_badges:'Badges',
+    stock_total_rolls:'Total Rolls', stock_film_types:'Film Types', stock_expired_count:'Expired',
+    btn_add_stock:'📦 Add Stock',
+    title_stock_list:'🧊 Inventory',
+    empty_stock:'Fridge is empty', empty_stock_sub:"Click 'Add Stock' to begin",
+    pill_expired:'Expired', pill_low_stock:'Low Stock',
+    modal_add_stock:'Add Stock',
+    quick_select:'Quick Select',
+    label_optional:'Optional', label_required:'Required',
+    form_brand:'Brand', opt_brand:'— Brand —',
+    form_film:'Film Name', opt_film:'— Film —', opt_film_first:'— Select Brand First —',
+    form_confirm_name:'Confirm or Customize Name',
+    ph_film_name:'e.g. Kodak Portra 800...',
+    form_qty:'Quantity', form_price:'Price',
+    section_optional:'Optional Fields',
+    form_expiry:'Expiry Date',
+    btn_cancel:'Cancel', btn_confirm_stock:'✅ Confirm Add',
+    btn_load_film:'📸 Load Film', btn_load_empty:'📸 Load Film (Out of Stock)',
+    btn_manage_cam:'Manage Cameras',
+    title_loaded:'📷 Loaded', empty_loaded:'No camera loaded',
+    pill_loaded:'Loaded',
+    btn_notes:'✏ Notes', btn_unload:'🎞️ Unload Film',
+    title_unloaded:'⏳ Ready for Lab', empty_unloaded:'No films waiting for lab',
+    pill_unloaded:'Unloaded',
+    btn_send_lab:'🧪 Send to Lab',
+    modal_load_film:'Load Film',
+    form_select_film:'Select Film', tag_expired:'[Expired]',
+    form_select_cam:'Select Camera', opt_cam:'— Select Existing Camera —',
+    form_new_cam:'Or Add New Camera', ph_cam:'e.g. Leica M6, Nikon FM2',
+    section_tags:'Shoot Tags · All Optional',
+    form_theme:'Theme', ph_theme:'e.g. Birthday, Street',
+    form_location:'Location', ph_location:'e.g. Central Park',
+    form_people:'People', ph_people:'e.g. Mary',
+    btn_confirm_load:'✅ Confirm Load',
+    modal_notes:'Shoot Notes',
+    form_notes:'Notes', ph_notes:'e.g. April trip, testing new lens...',
+    btn_save:'Save',
+    modal_send_lab:'Send to Lab',
+    form_lab_name:'Lab Name', ph_lab_name:'e.g. Local Lab, Self-dev',
+    form_dev_price:'Dev Price',
+    btn_confirm:'Confirm',
+    modal_manage_cam:'Manage Cameras', empty_cam:'No cameras added yet',
+    cam_status_loaded:'Loaded: ', cam_status_empty:'Empty',
+    btn_delete:'Delete',
+    cam_delete_hint:'*Cannot delete loaded cameras, please unload first',
+    btn_close:'Close',
+    title_developing:'🧪 Developing', empty_developing:'No films at the lab',
+    pill_developing:'Developing',
+    btn_archive:'📁 Archive',
+    title_archived:'📁 Archived', empty_archived:'No archives yet',
+    pill_archived:'Archived', pill_posted:'Posted',
+    btn_copy:'COPY',
+    toggle_posted:'Posted ✓', toggle_ready:'Ready to Post',
+    modal_archive:'Archive Film',
+    form_auto_name:'Auto Name', form_custom_name:'Custom Name',
+    form_link:'Download Link',
+    btn_confirm_archive:'✅ Confirm Archive',
+    dash_spend:'💰 Monthly Spend',
+    dash_load:'📷 Loaded This Month',
+    dash_buy:'📦 Bought This Month',
+    unit_roll:'Rolls',
+    title_top5:'Top 5 Films This Month', empty_top5:'No loaded films this month',
+    days_of_week:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    cal_hint:'↑ Tap a date to view logs',
+    cal_empty:'No stock or load logs on this day',
+    title_recent_stock:'📥 Recent Stock', empty_recent_stock:'No stock logs',
+    title_recent_load:'📷 Recent Loads', empty_recent_load:'No load logs',
+    log_type_stock:'Stock', log_type_load:'Load', log_type_note:'Note',
+    log_type_unload:'Unload', log_type_lab:'Lab', log_type_archive:'Archive', log_type_post:'Post',
+    title_badges:'Badges',
+    subtitle_badges:'ACHIEVEMENTS · Unlock your milestones',
+    cat_hoarded:'Hoarder', cat_brands:'Explorer', cat_loaded:'Shooter',
+    cat_months:'Consistent', cat_spent:'Big Spender',
+    cat_hoarded_desc:'Films Bought', cat_brands_desc:'Brands Unlocked',
+    cat_loaded_desc:'Films Loaded', cat_months_desc:'Active Months', cat_spent_desc:'Total Spent',
+    tier_hoarded:['Beginner','Novice','Collector','Hoarder','Warehouse'],
+    tier_brands:['First Brand','Beginner','Multi-brand','Connoisseur','Completionist'],
+    tier_loaded:['First Load','Enthusiast','Addict','Expert','Maniac'],
+    tier_months:['Started','3 Months','Half Year','Long Term','Full Year'],
+    tier_spent:['Spender','Burner','High Roller','Whale','Bankrupt'],
+    err_film_name:'Please enter film name (Required)',
+    err_price:'Please enter price (Required)',
+    err_select_film:'Please select a film',
+    err_select_cam:'Select or enter a camera name',
+    msg_note_saved:'✓ Notes updated',
+    err_lab_name:'Enter lab name',
+    err_dev_price:'Enter dev price (Required)',
+    err_cam_loaded:'Camera is loaded. Unload first.',
+    msg_posted:'✓ Marked as posted',
+    msg_copied:'✓ Copied', err_copy:'Please copy manually',
+  },
+};
+
+// ── Translation helper ──
+// t(key) is created inside App and passed as prop to all children
+
+// ── Language Modal (Onboarding + Settings) ──
+function LangModal({onSelect, onClose, igHandle, setIgHandle}){
+  const LANGS=[
+    {code:'zh-HK', label:'菲林未GG，銀包先GG💸'},
+    {code:'zh-TW', label:'拍底片就是在燒錢 🔥'},
+    {code:'zh-CN', label:'胶片一响，黄金万两 💰'},
+    {code:'en',    label:'Shoot film, stay broke. 💸'},
+  ];
+  const [igInput, setIgInput] = useState(igHandle||'henrywmho');
+
+  function saveIg(val){
+    const clean = val.replace(/^@/,'').trim();
+    setIgInput(clean);
+    setIgHandle(clean);
+    localStorage.setItem('app_ig_handle', clean);
+  }
+
+  return(
+    <div className="lang-modal-bg">
+      <div className="lang-modal-box" style={{overflowY:'auto',maxHeight:'90dvh'}}>
+        {onClose&&(
+          <button onClick={()=>{saveIg(igInput);onClose();}} style={{position:'absolute',top:14,right:14,
+            background:'var(--k-black)',border:'none',color:'var(--k-yellow)',
+            width:28,height:28,borderRadius:'50%',cursor:'pointer',
+            display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.9rem'}}>✕</button>
+        )}
+        <div className="lang-modal-title">你是哪一種攝影玩家？<br/>What's your shooting vibe?</div>
+        <div className="lang-modal-sub">FilmVault · 菲林管理</div>
+        {LANGS.map(l=>(
+          <button key={l.code} className="lang-btn" onClick={()=>onSelect(l.code)}
+            style={{height:'3.5rem',whiteSpace:'nowrap',overflow:'hidden',
+              textOverflow:'ellipsis',fontSize:'0.88rem',
+              display:'flex',alignItems:'center',justifyContent:'center',
+              paddingLeft:12,paddingRight:12}}>
+            {l.label}
+          </button>
+        ))}
+
+        {/* IG Handle Setting — only shown in settings mode (onClose exists) */}
+        {onClose&&(
+          <div style={{marginTop:20,borderTop:'2px solid #e8e8e8',paddingTop:16}}>
+            <div style={{fontFamily:'var(--mono)',fontSize:'0.5rem',color:'#aaa',
+              letterSpacing:'2px',textTransform:'uppercase',marginBottom:10,fontWeight:700}}>
+              自訂 IG 連結 · Custom IG Link
+            </div>
+            <div style={{display:'flex',gap:'8px',alignItems:'stretch'}}>
+              <div style={{flex:1,display:'flex',alignItems:'center',background:'#fff',
+                border:'2px solid var(--k-black)',borderRadius:10,overflow:'hidden',
+                boxShadow:'3px 3px 0 #000'}}>
+                <span style={{fontFamily:'var(--mono)',fontSize:'0.55rem',color:'#aaa',
+                  padding:'0 6px 0 10px',flexShrink:0,whiteSpace:'nowrap'}}>
+                  instagram.com/
+                </span>
+                <input
+                  value={igInput}
+                  onChange={e=>setIgInput(e.target.value.replace(/^@/,''))}
+                  onBlur={e=>saveIg(e.target.value)}
+                  placeholder="henrywmho"
+                  style={{flex:1,border:'none',outline:'none',fontFamily:'var(--mono)',
+                    fontSize:'0.78rem',fontWeight:700,color:'var(--k-black)',
+                    padding:'10px 10px 10px 0',background:'transparent',minWidth:0}}
+                />
+              </div>
+              <button
+                onClick={()=>{saveIg(igInput);onClose();}}
+                style={{background:'var(--k-yellow)',border:'2px solid var(--k-black)',
+                  borderRadius:'10px',color:'var(--k-black)',fontFamily:'var(--display)',
+                  fontSize:'0.8rem',fontWeight:900,padding:'0 14px',cursor:'pointer',
+                  boxShadow:'3px 3px 0 #000',transition:'transform 0.08s, box-shadow 0.08s',
+                  flexShrink:0}}
+                onMouseDown={e=>{e.currentTarget.style.transform='translate(2px,2px)';e.currentTarget.style.boxShadow='none';}}
+                onMouseUp={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='3px 3px 0 #000';}}>
+                SAVE
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+// ═══════════════════════════════════════════════════
+// CONSTANTS — Brand → Films catalogue
+// ═══════════════════════════════════════════════════
+const FILM_CATALOGUE = {
+  'Kodak':      ['Ultramax 400','ColorPlus 200','Gold 200','Portra 400','ProImage 100','Ektar 100','Portra 160','T-Max 400','Tri-X 400','Ektachrome E100','T-Max 100','Portra 800'],
+  'Cinestill':  ['800Tungsten','50Daylight','400Dynamic'],
+  'Fujifilm':   ['Fujicolor 100','Fujicolor 200'],
+  'Ilford':     ['HP5 Plus','XP2 Super 400','Delta 400','Delta 100','FP4+ 125','Delta 3200'],
+  'Lomography': ['Lomochrome Metropolis XR','Lomochrome Purple','Color 400','Color 800',"LomoChrome Color '92",'Redscale XR'],
+  'Amber':      ['D400','D100','T200','T800'],
+  'Cyberpunk':  ['400D','640T','100D','320T'],
+  'RETOCOLOR':  ['Aqua 400','Glow 400','Maple 100','Prism 400','Mosaic 100','Prism 200'],
+  'Agfa':       ['AGFA APX 400','AGFA APX 100','AgfaPhoto Colour 400'],
+  'CANDIDO':    ['CANDIDO800','CANDIDO400','CANDIDO200'],
+  'Hitchcock':  ['5203 50D','Double-X 5222 BW'],
+  'ORWO':       ['Wolfen Original NC500','Wolfen Original NC400'],
+  '其他':       ['Kentmere 100','Kentmere 200','Rollei Retro 400S','Rollei RETRO 80S','Bergger Pancro 400','Nolan 5203 50D','Seagull Oriental 100','Harman Phoenix II 200','Lucky C200'],
+};
+const BRANDS = Object.keys(FILM_CATALOGUE);
+
+// ═══════════════════════════════════════════════════
+// STORAGE — DB v8: per-transaction price on stock log entries
+// ═══════════════════════════════════════════════════
+const DB_KEY  = 'ff_v8';
+
+const defaultState = {
+  films:    [],   // { id, brand, name, expiry } — master film catalogue
+  stock:    {},   // { [filmId]: qty }
+  cameras:  [],   // { id, name }
+  rolls:    [],   // ActiveRoll
+  log:      [],   // LogEvent (price/devPrice stored here per transaction)
+};
+
+function migrateRoll(r) { return { theme:'',location:'',friends:'',notes:'',price:0,devPrice:0,...r }; }
+function migrateFilm(f) {
+  const { format,frames,iso,...rest }=f;
+  // If no brand, try to infer from name
+  if(!rest.brand) {
+    const match=BRANDS.find(b=>rest.name?.toLowerCase().startsWith(b.toLowerCase()));
+    rest.brand=match||'其他';
+  }
+  return rest;
+}
+
+function loadDB() {
+  try {
+    const raw=localStorage.getItem(DB_KEY);
+    if(raw){ const d=JSON.parse(raw); return {...defaultState,...d,rolls:(d.rolls||[]).map(migrateRoll),films:(d.films||[]).map(migrateFilm)}; }
+    for(const k of ['ff_v7','ff_v6','ff_v5']){
+      const old=localStorage.getItem(k);
+      if(old){ const d=JSON.parse(old); return {...defaultState,...d,rolls:(d.rolls||[]).map(migrateRoll),films:(d.films||[]).map(migrateFilm)}; }
+    }
+  }catch(e){}
+  return {...defaultState};
+}
+function saveDB(s){ try{localStorage.setItem(DB_KEY,JSON.stringify(s));}catch(e){} }
+
+function uid()   { return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+function today() { return new Date().toISOString().slice(0,10); }
+function nowISO(){ return new Date().toISOString(); }
+
+function formatDate(iso){ if(!iso)return''; return new Date(iso.slice(0,10)+'T12:00:00').toLocaleDateString('zh-HK',{year:'numeric',month:'short',day:'numeric'}); }
+function formatTS(iso)  { return new Date(iso).toLocaleTimeString('zh-HK',{hour:'2-digit',minute:'2-digit'}); }
+function isExpired(e)   { if(!e)return false; const ed=new Date(e+(e.length===7?'-01':'')); const n=new Date(); return ed<new Date(n.getFullYear(),n.getMonth(),1); }
+function sanitize(s)    { if(!s)return''; return s.trim().replace(/\s+/g,'').replace(/[^a-zA-Z0-9\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff]/g,'').slice(0,24); }
+function genFolderName(r){ const d=(r.loadedAt||r.archivedAt||nowISO()).slice(0,7).replace('-',''); return[d,sanitize(r.cameraName),sanitize(r.filmName),sanitize(r.theme),sanitize(r.location),sanitize(r.friends)].filter(Boolean).join('_'); }
+function fmtPrice(n)    { if(!n&&n!==0)return'—'; return'$'+Number(n).toLocaleString('en',{minimumFractionDigits:0,maximumFractionDigits:2}); }
+
+// ── TOAST ──
+let _tt;
+function useToast(){
+  const [msg,setMsg]=useState(''); const [vis,setVis]=useState(false);
+  const show=useCallback(m=>{setMsg(m);setVis(true);clearTimeout(_tt);_tt=setTimeout(()=>setVis(false),2600);},[]);
+  return {msg,vis,show};
+}
+
+function Modal({title,onClose,children,footer,single}){
+  useEffect(()=>{ const h=e=>{if(e.key==='Escape')onClose();}; window.addEventListener('keydown',h); return()=>window.removeEventListener('keydown',h); },[onClose]);
+  return (
+    <div className="modal-bg" onClick={e=>{if(e.target.className==='modal-bg')onClose();}}>
+      <div className="modal">
+        <div className="modal-drag"/>
+        <div className="modal-header"><div className="modal-title">{title}</div><button className="modal-close" onClick={onClose}>✕</button></div>
+        <div className="modal-body">{children}</div>
+        {footer&&<div className={`modal-footer ${single?'single':''}`}>{footer}</div>}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════
+// ① STOCK TAB — Quick-select helpers + free-text final inputs
+// ═══════════════════════════════════════════════════
+function StockTab({state,dispatch,toast,t}){
+  // filmFullName = single confirmed text field, the only value submitted to DB
+  // quickBrand / quickFilm = helper dropdowns for auto-fill only
+  const EMPTY={quickBrand:'',quickFilm:'',filmFullName:'',qty:'1',expiry:'',price:''};
+  const [showAdd,setShowAdd]=useState(false);
+  const [form,setForm]=useState(EMPTY);
+  const F=(k,v)=>setForm(f=>({...f,[k]:v}));
+
+  // Quick-select brand: reset film, clear the full-name field to just the brand
+  const handleQuickBrand=e=>{
+    const v=e.target.value;
+    setForm(f=>({...f,quickBrand:v,quickFilm:'',filmFullName:v?v:''}));
+  };
+  // Quick-select film: combine brand + film into single string
+  const handleQuickFilm=e=>{
+    const v=e.target.value;
+    setForm(f=>({...f,quickFilm:v,filmFullName:v?`${f.quickBrand} ${v}`.trim():''}));
+  };
+
+  // Film options cascade from quick-select brand
+  const filmNames=form.quickBrand?FILM_CATALOGUE[form.quickBrand]||[]:[];
+
+  const filmList=useMemo(()=>
+    state.films.map(f=>({...f,qty:state.stock[f.id]||0,expired:isExpired(f.expiry)})).sort((a,b)=>a.name.localeCompare(b.name)),
+    [state.films,state.stock]);
+  const totalRolls=useMemo(()=>Object.values(state.stock).reduce((s,v)=>s+v,0),[state.stock]);
+
+  function handleSubmit(){
+    const fullName=form.filmFullName.trim();
+    if(!fullName){toast(t('err_film_name'));return;}
+    const priceVal=parseFloat(form.price);
+    if(!form.price||isNaN(priceVal)||priceVal<0){toast(t('err_price'));return;}
+    const qty=parseInt(form.qty)||1;
+    // Store full name in both brand and name fields for display consistency
+    const existing=state.films.find(f=>f.name===fullName);
+    if(existing){
+      dispatch({type:'ADD_STOCK',filmId:existing.id,qty,notes:fullName,price:priceVal});
+    }else{
+      dispatch({type:'ADD_FILM_AND_STOCK',film:{id:uid(),brand:'',name:fullName,expiry:form.expiry,barcodes:[]},qty,price:priceVal});
+    }
+    toast(`✓ ${qty}× ${fullName} · ${fmtPrice(priceVal)}`);
+    setShowAdd(false);setForm(EMPTY);
+  }
+
+  return (
+    <div style={{paddingBottom:8}}>
+      {/* Stats bar */}
+      <div style={{display:'flex',gap:0,background:'var(--k-black)',borderBottom:'3px solid var(--k-black)'}}>
+        {[{n:totalRolls,l:t('stock_total_rolls'),w:false},{n:filmList.filter(f=>f.qty>0&&!f.expired).length,l:t('stock_film_types'),w:false},{n:filmList.filter(f=>f.expired&&f.qty>0).length,l:t('stock_expired_count'),w:true}].map((s,i)=>(
+          <div key={s.l} style={{flex:1,background:'var(--bg2)',padding:'14px 10px 12px',textAlign:'center',borderLeft:i>0?'3px solid var(--k-black)':'none'}}>
+            <div style={{fontFamily:'var(--display)',fontSize:'1.8rem',fontWeight:900,lineHeight:1,color:s.w&&s.n>0?'var(--k-red)':'var(--k-black)'}}>{s.n}</div>
+            <div style={{fontFamily:'var(--mono)',fontSize:'0.46rem',color:'#777',letterSpacing:2,textTransform:'uppercase',marginTop:4,fontWeight:700}}>{s.l}</div>
+          </div>
+        ))}
+      </div>
+
+      <button className="fab" onClick={()=>{setForm(EMPTY);setShowAdd(true);}}>
+        {t('btn_add_stock')}
+      </button>
+
+      <div className="sec-head">
+        <span className="sec-title">{t('title_stock_list')}</span>
+        <span className="sec-count">{filmList.filter(f=>f.qty>0).length}</span>
+      </div>
+      {filmList.length===0&&<div className="empty"><span className="empty-icon">📦</span>{t('empty_stock')}<br/>{t('empty_stock_sub')}</div>}
+      {filmList.map(film=>{
+        const low=film.qty===1, zero=film.qty===0;
+        const accent=film.expired?'var(--k-red)':low?'var(--k-orange)':zero?'#ddd':'var(--k-yellow)';
+        return (
+          <div key={film.id} className="card" style={{borderLeft:`3px solid ${accent}`}}>
+            <div style={{display:'flex',alignItems:'flex-start',gap:12}}>
+              <div style={{flex:1,minWidth:0}}>
+                <div className="card-title" style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
+                  <span style={{flex:1,minWidth:0}}>
+                    {film.brand&&<span style={{fontFamily:'var(--mono)',fontSize:'0.52rem',color:'#888',marginRight:5,fontWeight:700}}>{film.brand}</span>}
+                    {film.name||film.filmName||'—'}
+                  </span>
+                  {film.expired&&<span className="pill expired">{t('pill_expired')}</span>}
+                  {low&&!film.expired&&<span className="pill low-stock">{t('pill_low_stock')}</span>}
+                </div>
+                <div className="card-sub" style={{marginTop:4}}>{film.expiry?`有效期至 ${film.expiry}`:''}</div>
+              </div>
+              <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:4}}>
+                <div className={`stock-qty ${low&&!film.expired?'low':zero?'zero':''}`} style={{color:film.expired?'var(--k-red)':undefined}}>{film.qty}</div>
+                <div className="qty-row">
+                  <button className="qty-btn" onClick={()=>dispatch({type:'ADJUST_STOCK',filmId:film.id,delta:1})}>+</button>
+                  <button className="qty-btn" onClick={()=>dispatch({type:'ADJUST_STOCK',filmId:film.id,delta:-1})}>−</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+
+      {/* ADD STOCK MODAL */}
+      {showAdd&&(
+        <Modal title={t('modal_add_stock')} onClose={()=>setShowAdd(false)}
+          footer={<><button className="btn-modal-cancel" onClick={()=>setShowAdd(false)}>{t('btn_cancel')}</button><button className="btn-modal-ok" onClick={handleSubmit}>{t('btn_confirm_stock')}</button></>}>
+          {/* ── Quick-select helpers side-by-side (auto-fill only) ── */}
+          <div className="form-section-label">{t('quick_select')} <span className="form-opt">{t('label_optional')}</span></div>
+          <div className="form-row" style={{marginBottom:0}}>
+            <div className="form-group">
+              <label className="form-label" style={{fontSize:'0.48rem'}}>{t('form_brand')}</label>
+              <select className="form-select" value={form.quickBrand} onChange={handleQuickBrand}>
+                <option value="">{t('opt_brand')}</option>
+                {BRANDS.map(b=><option key={b} value={b}>{b}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
+              <label className="form-label" style={{fontSize:'0.48rem'}}>{t('form_film')}</label>
+              <select className="form-select" value={form.quickFilm} onChange={handleQuickFilm}
+                disabled={!form.quickBrand}>
+                <option value="">{form.quickBrand?t('opt_film'):t('opt_film_first')}</option>
+                {filmNames.map(n=><option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+          </div>
+          {/* ── Single confirmed name field (only value submitted to DB) ── */}
+          <div className="form-group" style={{marginBottom:16}}>
+            <label className="form-label">{t('form_confirm_name')} <span style={{color:'var(--k-red)',fontFamily:'var(--mono)',fontSize:'0.48rem',letterSpacing:1,marginLeft:4}}>{t('label_required')}</span></label>
+            <input className="form-input" value={form.filmFullName}
+              onChange={e=>F('filmFullName',e.target.value)}
+              placeholder={t('ph_film_name')} autoComplete="off"/>
+          </div>
+          {/* Qty + Price */}
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">{t('form_qty')}</label>
+              <input className="form-input" type="number" value={form.qty} onChange={e=>F('qty',e.target.value)} min="1" max="99"/>
+            </div>
+            <div className="form-group">
+              <label className="form-label">{t('form_price')}</label>
+              <div className="price-wrap">
+                <span className="price-prefix">$</span>
+                <input className="form-input price-input" type="number" value={form.price} onChange={e=>F('price',e.target.value)} placeholder="0.00" min="0" step="0.01"/>
+              </div>
+            </div>
+          </div>
+          <div className="form-section-label">{t('section_optional')}</div>
+          <div className="form-group">
+            <label className="form-label">{t('form_expiry')} <span className="form-opt">{t('label_optional')}</span></label>
+            <input className="form-input" type="month" value={form.expiry} onChange={e=>F('expiry',e.target.value)}/>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════
+// ② SHOOT TAB
+// ═══════════════════════════════════════════════════
+function ShootTab({state,dispatch,toast,t}){
+  const [modal,setModal]=useState(null);
+  const [sel,setSel]=useState(null);
+  const [form,setForm]=useState({});
+  const F=(k,v)=>setForm(f=>({...f,[k]:v}));
+
+  const loaded  =useMemo(()=>state.rolls.filter(r=>r.status==='loaded'),[state.rolls]);
+  const unloaded=useMemo(()=>state.rolls.filter(r=>r.status==='unloaded'),[state.rolls]);
+  const avail   =useMemo(()=>state.films.filter(f=>(state.stock[f.id]||0)>0),[state.films,state.stock]);
+  const freeCams=state.cameras.filter(c=>!state.rolls.find(r=>r.cameraId===c.id&&r.status==='loaded'));
+
+  function submitLoad(){
+    if(!form.filmId){toast(t('err_select_film'));return;}
+    const camName=(form.cameraNew||'').trim()||state.cameras.find(c=>c.id===form.cameraId)?.name;
+    if(!camName){toast(t('err_select_cam'));return;}
+    const film=state.films.find(f=>f.id===form.filmId);
+    let cam=state.cameras.find(c=>c.name.toLowerCase()===camName.toLowerCase());
+    if(!cam){cam={id:uid(),name:camName};dispatch({type:'ADD_CAMERA',camera:cam});}
+    const roll={id:uid(),filmId:film.id,filmName:`${film.brand} ${film.name}`,cameraId:cam.id,cameraName:cam.name,
+      status:'loaded',loadedAt:nowISO(),notes:'',
+      theme:(form.theme||'').trim(),location:(form.location||'').trim(),friends:(form.friends||'').trim(),
+      price:0,devPrice:0,lab:'',downloadUrl:'',folderName:'',posted:false};
+    dispatch({type:'LOAD_FILM',roll,filmId:film.id});
+    toast(`✓ ${film.brand} ${film.name} → ${cam.name}`);setModal(null);
+  }
+
+  function submitNote(){
+    dispatch({type:'UPDATE_ROLL',id:sel.id,updates:{notes:form.notes}});
+    dispatch({type:'LOG',entry:{id:uid(),type:'note',date:today(),timestamp:nowISO(),title:`更新拍攝手記`,detail:`${sel.filmName} — ${form.notes}`}});
+    toast(t('msg_note_saved'));setModal(null);
+  }
+
+  function unloadRoll(roll){
+    dispatch({type:'UPDATE_ROLL',id:roll.id,updates:{status:'unloaded',unloadedAt:nowISO()}});
+    dispatch({type:'LOG',entry:{id:uid(),type:'unload',date:today(),timestamp:nowISO(),title:`出片：${roll.filmName}`,detail:`from ${roll.cameraName}`}});
+    toast(`✓ ${roll.filmName} — ${t('pill_unloaded')}`);
+  }
+
+  function submitLab(){
+    if(!(form.lab||'').trim()){toast(t('err_lab_name'));return;}
+    const devP=parseFloat(form.devPrice);
+    if(!form.devPrice||isNaN(devP)||devP<0){toast(t('err_dev_price'));return;}
+    dispatch({type:'UPDATE_ROLL',id:sel.id,updates:{status:'developing',lab:form.lab.trim(),sentAt:nowISO(),devPrice:devP}});
+    dispatch({type:'LOG',entry:{id:uid(),type:'lab',date:today(),timestamp:nowISO(),title:`送沖：${sel.filmName}`,detail:`沖曬店：${form.lab.trim()} · ${fmtPrice(devP)}`,devPrice:devP}});
+    toast(`✓ ${form.lab.trim()} · ${fmtPrice(devP)}`);setModal(null);
+  }
+
+  function deleteCamera(camId){
+    const cam=state.cameras.find(c=>c.id===camId);
+    if(state.rolls.some(r=>r.cameraId===camId&&r.status==='loaded')){toast(t('err_cam_loaded'));return;}
+    dispatch({type:'DELETE_CAMERA',camId});toast(`✓ ${cam?.name}`);
+  }
+
+  function MetaTags({roll}){
+    const tags=[roll.theme&&`🎭 ${roll.theme}`,roll.location&&`📍 ${roll.location}`,roll.friends&&`👥 ${roll.friends}`].filter(Boolean);
+    return <div>{roll.notes&&<div className="notes-display">「{roll.notes}」</div>}{tags.length>0&&<div className="meta-tags">{tags.map((t,i)=><span key={i} className="meta-tag">{t}</span>)}</div>}</div>;
+  }
+
+  return (
+    <div style={{paddingBottom:8}}>
+      <div style={{display:'flex',gap:8,padding:'8px 12px 0'}}>
+        <button className="fab" style={{margin:0,flex:1}} onClick={()=>{setForm({filmId:avail[0]?.id||'',cameraId:'',cameraNew:'',theme:'',location:'',friends:''});setModal('load');}} disabled={avail.length===0}>
+          {avail.length===0?t('btn_load_empty'):t('btn_load_film')}
+        </button>
+        <button onClick={()=>setModal('cameras')} style={{background:'#f5f5f5',border:'1px solid var(--g4)',color:'#555',padding:'0 13px',borderRadius:'var(--r)',cursor:'pointer',fontFamily:'var(--mono)',fontSize:'0.58rem',letterSpacing:'1px',flexShrink:0}}>{t('btn_manage_cam')}</button>
+      </div>
+
+      <div className="sec-head" style={{marginTop:8}}><span className="sec-title">{t('title_loaded')}</span><span className="sec-count">{loaded.length}</span></div>
+      {loaded.length===0&&<div className="empty"><span className="empty-icon">📷</span>{t('empty_loaded')}</div>}
+      {loaded.map(roll=>(
+        <div key={roll.id} className="card" style={{borderLeft:'3px solid #000',background:'#FFFDE0'}}>
+          <div style={{marginBottom:0}}>
+            <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap',marginBottom:3}}>
+              <div className="card-title">{roll.cameraName}</div>
+              <span className="pill loaded">{t('pill_loaded')}</span>
+            </div>
+            <div className="card-sub">{roll.filmName} · {formatDate(roll.loadedAt)}</div>
+            <MetaTags roll={roll}/>
+          </div>
+          <div className="card-actions">
+            <button className="btn-ghost" onClick={()=>{setSel(roll);setForm({notes:roll.notes||''});setModal('note');}}>{t('btn_notes')}</button>
+            <button className="btn-cta" onClick={()=>unloadRoll(roll)}>{t('btn_unload')}</button>
+          </div>
+        </div>
+      ))}
+
+      <div className="divider"/>
+      <div className="sec-head"><span className="sec-title">{t('title_unloaded')}</span><span className="sec-count">{unloaded.length}</span></div>
+      {unloaded.length===0&&<div className="empty" style={{padding:'24px 20px'}}><span style={{fontSize:'1.6rem',display:'block',marginBottom:8}}>⏳</span>{t('empty_unloaded')}</div>}
+      {unloaded.map(roll=>(
+        <div key={roll.id} className="card" style={{borderLeft:'3px solid #bbb'}}>
+          <div>
+            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:3}}>
+              <div className="card-title">{roll.filmName}</div>
+              <span className="pill unloaded">{t('pill_unloaded')}</span>
+            </div>
+            <div className="card-sub">{roll.cameraName} · {formatDate(roll.unloadedAt)}</div>
+            <MetaTags roll={roll}/>
+          </div>
+          <div className="card-actions">
+            <button className="btn-cta" onClick={()=>{setSel(roll);setForm({lab:'',devPrice:''});setModal('lab');}}>{t('btn_send_lab')}</button>
+          </div>
+        </div>
+      ))}
+
+      {/* MODAL: Load */}
+      {modal==='load'&&(
+        <Modal title={t('modal_load_film')} onClose={()=>setModal(null)}
+          footer={<><button className="btn-modal-cancel" onClick={()=>setModal(null)}>{t('btn_cancel')}</button><button className="btn-modal-ok" onClick={submitLoad}>{t('btn_confirm_load')}</button></>}>
+          <div className="form-group">
+            <label className="form-label">{t('form_select_film')}</label>
+            <select className="form-select" value={form.filmId} onChange={e=>F('filmId',e.target.value)}>
+              {avail.map(f=><option key={f.id} value={f.id}>{f.brand} {f.name} ({state.stock[f.id]||0} 卷){isExpired(f.expiry)?` ${t('tag_expired')}`:''}</option>)}
+            </select>
+          </div>
+          <div className="form-group">
+            <label className="form-label">{t('form_select_cam')}</label>
+            <select className="form-select" value={form.cameraId} onChange={e=>{F('cameraId',e.target.value);F('cameraNew','');}}>
+              <option value="">{t('opt_cam')}</option>
+              {freeCams.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+          <div className="form-group">
+            <label className="form-label">{t('form_new_cam')} <span className="form-opt">{t('label_optional')}</span></label>
+            <input className="form-input" value={form.cameraNew||''} onChange={e=>{F('cameraNew',e.target.value);F('cameraId','');}} placeholder={t('ph_cam')} autoComplete="off"/>
+          </div>
+          <div className="form-section-label">{t('section_tags')}</div>
+          <div className="form-group">
+            <label className="form-label">{t('form_theme')} <span className="form-opt">{t('label_optional')}</span></label>
+            <input className="form-input" value={form.theme||''} onChange={e=>F('theme',e.target.value)} placeholder={t('ph_theme')} autoComplete="off"/>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">{t('form_location')} <span className="form-opt">{t('label_optional')}</span></label>
+              <input className="form-input" value={form.location||''} onChange={e=>F('location',e.target.value)} placeholder={t('ph_location')} autoComplete="off"/>
+            </div>
+            <div className="form-group">
+              <label className="form-label">{t('form_people')} <span className="form-opt">{t('label_optional')}</span></label>
+              <input className="form-input" value={form.friends||''} onChange={e=>F('friends',e.target.value)} placeholder={t('ph_people')} autoComplete="off"/>
+            </div>
+          </div>
+        </Modal>
+      )}
+      {modal==='note'&&sel&&(
+        <Modal title={t('modal_notes')} onClose={()=>setModal(null)}
+          footer={<><button className="btn-modal-cancel" onClick={()=>setModal(null)}>{t('btn_cancel')}</button><button className="btn-modal-ok" onClick={submitNote}>{t('btn_save')}</button></>}>
+          <div style={{marginBottom:12,padding:'10px 13px',background:'#f5f5f5',borderRadius:14,border:'1.5px solid #ddd'}}>
+            <div style={{fontFamily:'var(--mono)',fontSize:'0.58rem',color:'#666'}}>{sel.cameraName} · {sel.filmName}</div>
+          </div>
+          <div className="form-group">
+            <label className="form-label">{t('form_notes')}</label>
+            <textarea className="form-textarea" value={form.notes||''} onChange={e=>F('notes',e.target.value)} placeholder={t('ph_notes')}/>
+          </div>
+        </Modal>
+      )}
+      {modal==='lab'&&sel&&(
+        <Modal title={t('modal_send_lab')} onClose={()=>setModal(null)}
+          footer={<><button className="btn-modal-cancel" onClick={()=>setModal(null)}>{t('btn_cancel')}</button><button className="btn-modal-ok" onClick={submitLab}>{t('btn_confirm')}</button></>}>
+          <div style={{marginBottom:14,padding:'10px 13px',background:'#f5f5f5',borderRadius:14,border:'1.5px solid #ddd'}}>
+            <div style={{fontFamily:'var(--body)',fontWeight:900,marginBottom:3,color:'#000'}}>{sel.filmName}</div>
+            <div style={{fontFamily:'var(--mono)',fontSize:'0.58rem',color:'#666'}}>{sel.cameraName}{sel.notes&&` · 「${sel.notes}」`}</div>
+          </div>
+          <div className="form-group">
+            <label className="form-label">{t('form_lab_name')}</label>
+            <input className="form-input" value={form.lab||''} onChange={e=>F('lab',e.target.value)} placeholder={t('ph_lab_name')} autoComplete="off"/>
+          </div>
+          <div className="form-group">
+            <label className="form-label">{t('form_dev_price')}</label>
+            <div className="price-wrap">
+              <span className="price-prefix">$</span>
+              <input className="form-input price-input" type="number" value={form.devPrice||''} onChange={e=>F('devPrice',e.target.value)} placeholder="0.00" min="0" step="0.01"/>
+            </div>
+          </div>
+        </Modal>
+      )}
+      {modal==='cameras'&&(
+        <Modal title={t('modal_manage_cam')} onClose={()=>setModal(null)} single
+          footer={<button className="btn-modal-cancel" onClick={()=>setModal(null)}>{t('btn_close')}</button>}>
+          {state.cameras.length===0
+            ?<div style={{textAlign:'center',padding:'24px 0',fontFamily:'var(--mono)',fontSize:'0.58rem',color:'#888',letterSpacing:2}}>{t('empty_cam')}</div>
+            :state.cameras.map(cam=>{
+              const active=state.rolls.find(r=>r.cameraId===cam.id&&r.status==='loaded');
+              return (
+                <div key={cam.id} className="cam-manage-row">
+                  <div style={{flex:1}}>
+                    <div className="cam-manage-name">{cam.name}</div>
+                    <div className="cam-manage-sub">{active?`${t('cam_status_loaded')}${active.filmName}`:t('cam_status_empty')}</div>
+                  </div>
+                  <button className="btn-danger" onClick={()=>deleteCamera(cam.id)}>{t('btn_delete')}</button>
+                </div>
+              );
+            })
+          }
+          <div style={{padding:'10px 0 2px',fontFamily:'var(--mono)',fontSize:'0.53rem',color:'#888',letterSpacing:2,textTransform:'uppercase'}}>{t('cam_delete_hint')}</div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════
+// ③ LAB TAB
+// ═══════════════════════════════════════════════════
+function LabTab({state,dispatch,toast,t}){
+  const [modal,setModal]=useState(null);
+  const [sel,setSel]=useState(null);
+  const [form,setForm]=useState({});
+  const F=(k,v)=>setForm(f=>({...f,[k]:v}));
+
+  const developing=useMemo(()=>state.rolls.filter(r=>r.status==='developing'),[state.rolls]);
+  const archived  =useMemo(()=>[...state.rolls.filter(r=>r.status==='archived')].sort((a,b)=>(b.archivedAt||'').localeCompare(a.archivedAt||'')),[state.rolls]);
+
+  function openArchive(roll){setSel(roll);setForm({downloadUrl:roll.downloadUrl||'',folderName:genFolderName(roll)});setModal('archive');}
+  function submitArchive(){
+    const folder=form.folderName||genFolderName(sel);
+    dispatch({type:'UPDATE_ROLL',id:sel.id,updates:{status:'archived',archivedAt:nowISO(),downloadUrl:form.downloadUrl,folderName:folder}});
+    dispatch({type:'LOG',entry:{id:uid(),type:'archive',date:today(),timestamp:nowISO(),title:`入庫：${sel.filmName}`,detail:folder}});
+    toast(`✓ 入庫完成：${folder}`);setModal(null);
+  }
+  function togglePosted(roll){
+    const next=!roll.posted;
+    dispatch({type:'UPDATE_ROLL',id:roll.id,updates:{posted:next}});
+    if(next){dispatch({type:'LOG',entry:{id:uid(),type:'post',date:today(),timestamp:nowISO(),title:`發佈：${roll.filmName}`,detail:roll.folderName||''}});toast(t('msg_posted'));}
+  }
+  async function copyText(t){
+    try{
+      if(navigator.clipboard&&window.isSecureContext){
+        await navigator.clipboard.writeText(t);
+      } else {
+        // fallback for non-HTTPS / PWA webview
+        const ta=document.createElement('textarea');
+        ta.value=t; ta.style.cssText='position:fixed;left:-9999px;top:-9999px;opacity:0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+      }
+      toast(t('msg_copied'));
+    }catch(e){ toast(t('err_copy')); }
+  }
+
+  function MetaLine({roll}){
+    const p=[roll.theme,roll.location,roll.friends].filter(Boolean);
+    if(!p.length)return null;
+    return <div style={{display:'flex',flexWrap:'wrap',gap:4,marginTop:5}}>{p.map((x,i)=><span key={i} className="meta-tag">{x}</span>)}</div>;
+  }
+
+  return (
+    <div style={{paddingBottom:8}}>
+      <div className="sec-head"><span className="sec-title">{t('title_developing')}</span><span className="sec-count">{developing.length}</span></div>
+      {developing.length===0&&<div className="empty" style={{padding:'24px 20px'}}><span style={{fontSize:'1.6rem',display:'block',marginBottom:8}}>🧪</span>{t('empty_developing')}</div>}
+      {developing.map(roll=>(
+        <div key={roll.id} className="card" style={{borderLeft:'3px solid var(--c-dev)',background:'#FFF5E8'}}>
+          <div>
+            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:3,flexWrap:'wrap'}}>
+              <div className="card-title">{roll.filmName}</div>
+              <span className="pill developing">{t('pill_developing')}</span>
+              {roll.devPrice>0&&<span style={{fontFamily:'var(--mono)',fontSize:'0.56rem',color:'#555',fontWeight:700,marginLeft:'auto'}}>沖費 {fmtPrice(roll.devPrice)}</span>}
+            </div>
+            <div className="card-sub">{roll.cameraName} · {roll.lab}{roll.sentAt&&` · ${formatDate(roll.sentAt)}`}</div>
+            {roll.notes&&<div className="notes-display">「{roll.notes}」</div>}
+            <MetaLine roll={roll}/>
+          </div>
+          <div className="card-actions">
+            <button className="btn-cta" onClick={()=>openArchive(roll)}>{t('btn_archive')}</button>
+          </div>
+        </div>
+      ))}
+      <div className="divider"/>
+      <div className="sec-head"><span className="sec-title">{t('title_archived')}</span><span className="sec-count">{archived.length}</span></div>
+      {archived.length===0&&<div className="empty" style={{padding:'24px 20px'}}><span style={{fontSize:'1.6rem',display:'block',marginBottom:8}}>📁</span>{t('empty_archived')}</div>}
+      {archived.map(roll=>(
+        <div key={roll.id} className="card" style={{borderLeft:`3px solid ${roll.posted?'#bbb':'var(--c-arch)'}`,opacity:roll.posted?0.65:1}}>
+          <div style={{marginBottom:10}}>
+            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4,flexWrap:'wrap'}}>
+              <div className="card-title">{roll.filmName}</div>
+              {roll.posted?<span className="pill posted">{t('pill_posted')}</span>:<span className="pill archived">{t('pill_archived')}</span>}
+            </div>
+            <div className="card-sub">{roll.cameraName} · {formatDate(roll.archivedAt)}</div>
+            <MetaLine roll={roll}/>
+          </div>
+          {roll.folderName&&<div className="folder-box"><div className="folder-text">📂 {roll.folderName}</div><button className="folder-copy-btn" onClick={()=>copyText(roll.folderName)}>{t('btn_copy')}</button></div>}
+          <div className="toggle-row">
+            <label className="toggle"><input type="checkbox" checked={roll.posted} onChange={()=>togglePosted(roll)}/><div className="toggle-track"/></label>
+            <span className="toggle-label">{roll.posted?t('toggle_posted'):t('toggle_ready')}</span>
+          </div>
+        </div>
+      ))}
+      {modal==='archive'&&sel&&(
+        <Modal title={t('modal_archive')} onClose={()=>setModal(null)}
+          footer={<><button className="btn-modal-cancel" onClick={()=>setModal(null)}>{t('btn_cancel')}</button><button className="btn-modal-ok" onClick={submitArchive}>{t('btn_confirm_archive')}</button></>}>
+          <div style={{marginBottom:14,padding:'10px 13px',background:'#f5f5f5',borderRadius:14,border:'1.5px solid #ddd'}}>
+            <div style={{fontFamily:'var(--body)',fontWeight:900,marginBottom:3,color:'#000'}}>{sel.filmName}</div>
+            <div style={{fontFamily:'var(--mono)',fontSize:'0.58rem',color:'#666'}}>{sel.cameraName}{sel.lab&&` · ${sel.lab}`}</div>
+            {[sel.theme,sel.location,sel.friends].filter(Boolean).length>0&&<div style={{display:'flex',flexWrap:'wrap',gap:4,marginTop:6}}>{[sel.theme&&`🎭 ${sel.theme}`,sel.location&&`📍 ${sel.location}`,sel.friends&&`👥 ${sel.friends}`].filter(Boolean).map((p,i)=><span key={i} className="meta-tag">{p}</span>)}</div>}
+          </div>
+          <div className="form-group">
+            <label className="form-label">{t('form_auto_name')}</label>
+            <div className="folder-box" style={{marginBottom:8}}><div className="folder-text">{form.folderName}</div><button className="folder-copy-btn" onClick={()=>copyText(form.folderName)}>{t('btn_copy')}</button></div>
+            <label className="form-label" style={{marginTop:8}}>{t('form_custom_name')} <span className="form-opt">{t('label_optional')}</span></label>
+            <input className="form-input" value={form.folderName} onChange={e=>F('folderName',e.target.value)}/>
+          </div>
+          <div className="form-group">
+            <label className="form-label">{t('form_link')} <span className="form-opt">{t('label_optional')}</span></label>
+            <input className="form-input" type="url" value={form.downloadUrl} onChange={e=>F('downloadUrl',e.target.value)} placeholder="https://..."/>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════
+// ④ LOG TAB — 3-col dashboard + calendar + split log sections
+// ═══════════════════════════════════════════════════
+function getTypeMeta(t){return{stock:{ch:t('log_type_stock')},load:{ch:t('log_type_load')},note:{ch:t('log_type_note')},unload:{ch:t('log_type_unload')},lab:{ch:t('log_type_lab')},archive:{ch:t('log_type_archive')},post:{ch:t('log_type_post')}};}
+
+function LogTab({state,t}){
+  const now=new Date();
+  const [calYear, setCalYear] =useState(now.getFullYear());
+  const [calMonth,setCalMonth]=useState(now.getMonth());
+  const [selDate, setSelDate] =useState(null);
+  const todayStr=now.toISOString().slice(0,10);
+
+  const eventMap=useMemo(()=>{const m={};(state.log||[]).forEach(ev=>{if(!m[ev.date])m[ev.date]=[];m[ev.date].push(ev);});return m;},[state.log]);
+
+  function prevMonth(){if(calMonth===0){setCalYear(y=>y-1);setCalMonth(11);}else setCalMonth(m=>m-1);setSelDate(null);}
+  function nextMonth(){if(calMonth===11){setCalYear(y=>y+1);setCalMonth(0);}else setCalMonth(m=>m+1);setSelDate(null);}
+
+  const yyyymm=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
+  const monthLabel=new Date(calYear,calMonth,1).toLocaleDateString('zh-HK',{year:'numeric',month:'long'});
+
+  // Monthly stats
+  const {monthSpend,monthFilmSpend,monthDevSpend,monthBuyQty,monthLoadQty}=useMemo(()=>{
+    let spend=0,filmSpend=0,devSpend=0,buyQty=0,loadQty=0;
+    Object.entries(eventMap).forEach(([d,evs])=>{
+      if(!d.startsWith(yyyymm))return;
+      evs.forEach(ev=>{
+        if(ev.type==='stock'){filmSpend+=ev.price||0;spend+=ev.price||0;buyQty+=ev.qty||0;}
+        if(ev.type==='lab'){devSpend+=ev.devPrice||0;spend+=ev.devPrice||0;}
+        if(ev.type==='load')loadQty++;
+      });
+    });
+    return {monthSpend:spend,monthFilmSpend:filmSpend,monthDevSpend:devSpend,monthBuyQty:buyQty,monthLoadQty:loadQty};
+  },[eventMap,yyyymm]);
+
+  // Top 5
+  const top5=useMemo(()=>{
+    const c={};
+    Object.entries(eventMap).forEach(([d,evs])=>{
+      if(!d.startsWith(yyyymm))return;
+      evs.filter(e=>e.type==='load').forEach(e=>{
+        const m=e.title.match(/裝片：(.+?)→|入機：(.+?)→/);
+        const n=m?(m[1]||m[2]).trim():e.title.replace(/裝片：|入機：/,'').trim();
+        c[n]=(c[n]||0)+1;
+      });
+    });
+    return Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  },[eventMap,yyyymm]);
+  const maxC=top5[0]?.[1]||1;
+
+  // Calendar cells
+  const cells=useMemo(()=>{
+    const fd=new Date(calYear,calMonth,1).getDay();
+    const dm=new Date(calYear,calMonth+1,0).getDate();
+    const pd=new Date(calYear,calMonth,0).getDate();
+    const r=[];
+    for(let i=fd-1;i>=0;i--)r.push({day:pd-i,type:'prev',dateStr:null});
+    for(let d=1;d<=dm;d++){const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;r.push({day:d,type:'cur',dateStr:ds});}
+    const rem=r.length%7;if(rem>0)for(let d=1;d<=7-rem;d++)r.push({day:d,type:'next',dateStr:null});
+    return r;
+  },[calYear,calMonth]);
+
+  const selEvents=selDate?(eventMap[selDate]||[]).filter(e=>e.type==='stock'||e.type==='load').sort((a,b)=>a.timestamp.localeCompare(b.timestamp)):[];
+
+  // Split month log: last 10 of each type
+  const recentStock=useMemo(()=>[...state.log].filter(e=>e.type==='stock').sort((a,b)=>b.timestamp.localeCompare(a.timestamp)).slice(0,5),[state.log]);
+  const recentLoad =useMemo(()=>[...state.log].filter(e=>e.type==='load').sort((a,b)=>b.timestamp.localeCompare(a.timestamp)).slice(0,5),[state.log]);
+
+  const rankCls=i=>i===0?'gold':i===1?'silver':i===2?'bronze':'';
+  const barCls =i=>i===0?'':i===1?'silver':i===2?'bronze':'rest';
+
+  return (
+    <div className="log-wrap">
+      {/* 3-column dashboard */}
+      <div className="dashboard-3">
+        <div className="dash-card">
+          <div className="dash-card-label">{t('dash_spend')}</div>
+          <div className="dash-card-value" style={{fontSize:'1.2rem'}}>{fmtPrice(monthSpend)}</div>
+
+        </div>
+        <div className="dash-card" style={{borderLeft:'1px solid var(--g3)'}}>
+          <div className="dash-card-label">{t('dash_load')}</div>
+          <div className="dash-card-value">{monthLoadQty}</div>
+
+        </div>
+        <div className="dash-card" style={{borderLeft:'1px solid var(--g3)'}}>
+          <div className="dash-card-label">{t('dash_buy')}</div>
+          <div className="dash-card-value">{monthBuyQty}</div>
+
+        </div>
+      </div>
+
+      {/* Top 5 */}
+      <div className="top5-block">
+        <div className="top5-header">
+          <span className="top5-title">{t('title_top5')}</span>
+          <span className="top5-title-month">{monthLabel}</span>
+        </div>
+        {top5.length===0
+          ?<div className="top5-empty">{t('empty_top5')}</div>
+          :<div className="top5-list">{top5.map(([name,count],i)=>(
+              <div key={name} className="top5-row">
+                <span className={`top5-rank ${rankCls(i)}`}>#{i+1}</span>
+                <span className="top5-film-name">{name}</span>
+                <div className="top5-bar-wrap"><div className={`top5-bar ${barCls(i)}`} style={{width:`${Math.round((count/maxC)*100)}%`}}/></div>
+                <span className="top5-count">{count}</span>
+              </div>
+            ))}</div>
+        }
+      </div>
+
+      {/* Calendar nav */}
+      <div className="cal-nav">
+        <button className="cal-nav-btn" onClick={prevMonth}>‹</button>
+        <div className="cal-month-label">{monthLabel}</div>
+        <button className="cal-nav-btn" onClick={nextMonth}>›</button>
+      </div>
+      <div className="cal-grid">{(t('days_of_week')||['日','一','二','三','四','五','六']).map(d=><div key={d} className="cal-dow">{d}</div>)}</div>
+      <div className="cal-grid">
+        {cells.map((cell,i)=>{
+          if(cell.type!=='cur')return<div key={`p${i}`} className="cal-cell other-month"><div className="cal-date">{cell.day}</div></div>;
+          const evs=eventMap[cell.dateStr]||[];
+          const dotTypes=[...new Set(evs.map(e=>e.type))].slice(0,4);
+          const isSel=cell.dateStr===selDate,isToday=cell.dateStr===todayStr;
+          return(
+            <div key={cell.dateStr} className={`cal-cell ${isToday?'today':''} ${isSel?'selected':''} ${evs.length?'has-event':''}`}
+              onClick={()=>evs.length&&setSelDate(isSel?null:cell.dateStr)}>
+              <div className="cal-date">{cell.day}</div>
+              {dotTypes.length>0&&<div className="cal-dots">{dotTypes.map(t=><div key={t} className={`cal-dot ${t}`}/>)}</div>}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Day detail panel */}
+      {selDate?(
+        <div className="day-panel">
+          <div className="day-panel-header">
+            <div className="day-panel-date">{formatDate(selDate)}</div>
+            <div className="day-panel-count">{selEvents.length} {t('unit_roll')}</div>
+          </div>
+          {selEvents.length===0
+            ?<div style={{padding:'14px 16px',fontFamily:'var(--mono)',fontSize:'0.56rem',color:'#888',letterSpacing:2,textTransform:'uppercase'}}>{t('cal_empty')}</div>
+            :<div className="day-events-scroll">
+              {selEvents.map(ev=>(
+                <div key={ev.id} className="day-event-card">
+                  <div className={`day-event-type ${ev.type}`}>[{getTypeMeta(t)[ev.type]?.ch||ev.type}]</div>
+                  <div className="day-event-main">{ev.title.replace(/^[^：]+：/,'')}</div>
+                  {ev.detail&&<div className="day-event-sub">{ev.detail}</div>}
+                  {ev.price>0&&<div className="day-event-sub" style={{color:'#B8960A'}}>購入 {fmtPrice(ev.price)}</div>}
+                  <div className="day-event-time">{formatTS(ev.timestamp)}</div>
+                </div>
+              ))}
+            </div>
+          }
+        </div>
+      ):<div className="cal-hint">{t('cal_hint')}</div>}
+
+      {/* ── Dual split log blocks ── */}
+      <div className="log-split" style={{marginTop:8}}>
+        {/* 📥 Recent stock-in */}
+        <div>
+          <div className="log-section-head">
+            <span className="log-section-title">{t('title_recent_stock')}</span>
+            <span className="log-section-count">{recentStock.length}</span>
+          </div>
+          {recentStock.length===0&&<div style={{padding:'14px 16px',fontFamily:'var(--mono)',fontSize:'0.56rem',color:'#888',letterSpacing:2,textTransform:'uppercase'}}>{t('empty_recent_stock')}</div>}
+          {recentStock.map(ev=>(
+            <div key={ev.id} className="log-item">
+              <div className="log-dot-col"><div className="log-dot stock"/></div>
+              <div className="log-body">
+                <div className="log-main">{ev.title.replace(/^入庫：/,'')}</div>
+                {ev.detail&&<div className="log-detail">{ev.detail}</div>}
+                {ev.price>0&&<div className="log-price">{fmtPrice(ev.price)}</div>}
+              </div>
+              <div className="log-time">{formatDate(ev.date)}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="divider"/>
+
+        {/* 📷 Recent loads */}
+        <div>
+          <div className="log-section-head">
+            <span className="log-section-title">{t('title_recent_load')}</span>
+            <span className="log-section-count">{recentLoad.length}</span>
+          </div>
+          {recentLoad.length===0&&<div style={{padding:'14px 16px',fontFamily:'var(--mono)',fontSize:'0.56rem',color:'#888',letterSpacing:2,textTransform:'uppercase'}}>{t('empty_recent_load')}</div>}
+          {recentLoad.map(ev=>(
+            <div key={ev.id} className="log-item">
+              <div className="log-dot-col"><div className="log-dot load"/></div>
+              <div className="log-body">
+                <div className="log-main">{ev.title.replace(/^上機：|^裝片：|^入機：/,'')}</div>
+                {ev.detail&&ev.detail!=='庫存 -1'&&<div className="log-detail">{ev.detail}</div>}
+              </div>
+              <div className="log-time">{formatDate(ev.date)}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════
+// ⑤ BADGES TAB
+// ═══════════════════════════════════════════════════
+function getBadgeDefs(t){
+  return [
+    { id:'hoarded', icon:'📦', title:t('cat_hoarded'), desc:t('cat_hoarded_desc'),
+      tiers:[
+        {n:1,  label:(t('tier_hoarded')||[])[0]||'',icon:'📦'},
+        {n:5,  label:(t('tier_hoarded')||[])[1]||'',icon:'🎞️'},
+        {n:10, label:(t('tier_hoarded')||[])[2]||'',icon:'🗄️'},
+        {n:20, label:(t('tier_hoarded')||[])[3]||'',icon:'🏗️'},
+        {n:50, label:(t('tier_hoarded')||[])[4]||'',icon:'🏭'},
+      ]},
+    { id:'brands', icon:'🏷️', title:t('cat_brands'), desc:t('cat_brands_desc'),
+      tiers:[
+        {n:1,  label:(t('tier_brands')||[])[0]||'',icon:'🏷️'},
+        {n:3,  label:(t('tier_brands')||[])[1]||'',icon:'🎨'},
+        {n:5,  label:(t('tier_brands')||[])[2]||'',icon:'🌐'},
+        {n:8,  label:(t('tier_brands')||[])[3]||'',icon:'👑'},
+        {n:13, label:(t('tier_brands')||[])[4]||'',icon:'🌟'},
+      ]},
+    { id:'loaded', icon:'📷', title:t('cat_loaded'), desc:t('cat_loaded_desc'),
+      tiers:[
+        {n:1,  label:(t('tier_loaded')||[])[0]||'',icon:'📷'},
+        {n:5,  label:(t('tier_loaded')||[])[1]||'',icon:'🎞️'},
+        {n:10, label:(t('tier_loaded')||[])[2]||'',icon:'⚡'},
+        {n:25, label:(t('tier_loaded')||[])[3]||'',icon:'🏆'},
+        {n:50, label:(t('tier_loaded')||[])[4]||'',icon:'🔥'},
+      ]},
+    { id:'months', icon:'📅', title:t('cat_months'), desc:t('cat_months_desc'),
+      tiers:[
+        {n:1,  label:(t('tier_months')||[])[0]||'',icon:'📅'},
+        {n:3,  label:(t('tier_months')||[])[1]||'',icon:'📆'},
+        {n:6,  label:(t('tier_months')||[])[2]||'',icon:'🗓️'},
+        {n:9,  label:(t('tier_months')||[])[3]||'',icon:'⭐'},
+        {n:12, label:(t('tier_months')||[])[4]||'',icon:'💫'},
+      ]},
+    { id:'spent', icon:'💸', title:t('cat_spent'), desc:t('cat_spent_desc'),
+      tiers:[
+        {n:100,   label:(t('tier_spent')||[])[0]||'',icon:'💸'},
+        {n:500,   label:(t('tier_spent')||[])[1]||'',icon:'🔥'},
+        {n:1000,  label:(t('tier_spent')||[])[2]||'',icon:'💰'},
+        {n:3000,  label:(t('tier_spent')||[])[3]||'',icon:'💎'},
+        {n:10000, label:(t('tier_spent')||[])[4]||'',icon:'👑'},
+      ]},
+  ];
+}
+
+function BadgesTab({state,t}){
+  // Compute stats from state
+  const stats=useMemo(()=>{
+    const log=state.log||[];
+    const totalBought=log.filter(e=>e.type==='stock').reduce((s,e)=>s+Number(e.qty||0),0);
+    const brandsUsed=new Set(state.films.filter(f=>f.brand&&f.brand.trim()).map(f=>f.brand.trim())).size;
+    const totalLoaded=log.filter(e=>e.type==='load').length;
+    const activeMonths=new Set(log.filter(e=>e.type==='load'&&e.date).map(e=>String(e.date).slice(0,7)).filter(m=>m.length===7)).size;
+    const totalSpent=log.reduce((s,e)=>{
+      if(e.type==='stock')return s+Number(e.price||0);
+      if(e.type==='lab')  return s+Number(e.devPrice||0);
+      return s;
+    },0);
+    return {totalBought,brandsUsed,totalLoaded,activeMonths,totalSpent};
+  },[state]);
+
+  const valueFor={hoarded:stats.totalBought,brands:stats.brandsUsed,loaded:stats.totalLoaded,months:stats.activeMonths,spent:stats.totalSpent};
+
+  return (
+    <div className="badges-wrap">
+      <div style={{padding:'14px 16px 4px',borderBottom:'1px solid var(--g3)',background:'var(--k-yellow)'}}>
+        <div style={{fontFamily:'var(--display)',fontSize:'1.1rem',fontWeight:900,color:'#B8960A'}}>{t('title_badges')}</div>
+        <div style={{fontFamily:'var(--mono)',fontSize:'0.5rem',color:'#888',letterSpacing:2,textTransform:'uppercase',marginTop:3}}>{t('subtitle_badges')}</div>
+      </div>
+
+      {getBadgeDefs(t).map(cat=>{
+        const val=valueFor[cat.id]||0;
+        return (
+          <div key={cat.id} className="badge-category">
+            <div className="badge-cat-title">
+              <span className="badge-cat-icon">{cat.icon}</span>
+              {cat.title}
+              <span style={{fontFamily:'var(--body)',fontSize:'0.62rem',color:'#888',fontWeight:400,textTransform:'none',letterSpacing:0,marginLeft:4}}>— {cat.desc}</span>
+              <span style={{marginLeft:'auto',fontFamily:'var(--display)',fontSize:'0.85rem',fontWeight:800,color:'#B8960A'}}>
+                {cat.id==='spent'?fmtPrice(val):val}
+              </span>
+            </div>
+            <div className="badge-row">
+              {cat.tiers.map((tier,ti)=>{
+                const unlocked=val>=tier.n;
+                const progress=Math.min(1,val/tier.n);
+                return (
+                  <div key={ti} className={`badge-item ${unlocked?'unlocked':'locked'}`}>
+                    <div className="badge-icon-wrap">
+                      {tier.icon}
+                      {unlocked&&<div className="badge-check">✓</div>}
+                    </div>
+                    <div className="badge-name">{tier.label}</div>
+                    <div className="badge-progress-bar"><div className="badge-progress-fill" style={{width:`${progress*100}%`}}/></div>
+                    <div className="badge-target">
+                      {cat.id==='spent'?fmtPrice(tier.n):`${tier.n}`}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════
+// REDUCER
+// ═══════════════════════════════════════════════════
+function reducer(state,action){
+  let s={...state};
+  switch(action.type){
+    case 'ADD_FILM_AND_STOCK':
+      s.films=[...state.films,action.film];
+      s.stock={...state.stock,[action.film.id]:action.qty};
+      s.log=[...state.log,{id:uid(),type:'stock',date:today(),timestamp:nowISO(),
+        title:`入庫：${action.qty} 卷 ${action.film.brand} ${action.film.name}`,
+        detail:`購入價格 ${fmtPrice(action.price)}`,price:action.price||0,qty:action.qty}]; break;
+    case 'ADD_STOCK':{
+      const prev=state.stock[action.filmId]||0;
+      s.stock={...state.stock,[action.filmId]:prev+action.qty};
+      s.log=[...state.log,{id:uid(),type:'stock',date:today(),timestamp:nowISO(),
+        title:`入庫：${action.qty} 卷 ${action.notes}`,
+        detail:`庫存 +${action.qty} → ${prev+action.qty} · ${fmtPrice(action.price)}`,
+        price:action.price||0,qty:action.qty}]; break;}
+    case 'ADJUST_STOCK':{
+      const c=state.stock[action.filmId]||0;
+      s.stock={...state.stock,[action.filmId]:Math.max(0,c+action.delta)}; break;}
+    case 'ADD_CAMERA':    s.cameras=[...state.cameras,action.camera]; break;
+    case 'DELETE_CAMERA': s.cameras=state.cameras.filter(c=>c.id!==action.camId); break;
+    case 'LOAD_FILM':{
+      const c=state.stock[action.filmId]||0;
+      s.stock={...state.stock,[action.filmId]:Math.max(0,c-1)};
+      s.rolls=[...state.rolls,action.roll];
+      const r=action.roll,meta=[r.theme,r.location,r.friends].filter(Boolean).join('、');
+      s.log=[...state.log,{id:uid(),type:'load',date:today(),timestamp:nowISO(),
+        title:`裝片：${r.filmName} → ${r.cameraName}`,detail:meta||''}]; break;}
+    case 'UPDATE_ROLL': s.rolls=state.rolls.map(r=>r.id===action.id?{...r,...action.updates}:r); break;
+    case 'LOG':         s.log=[...state.log,action.entry]; break;
+    default: break;
+  }
+  saveDB(s); return s;
+}
+
+// ═══════════════════════════════════════════════════
+// APP ROOT
+// ═══════════════════════════════════════════════════
+function App(){
+  const [state,dispatch]=React.useReducer(reducer,null,loadDB);
+  const [tab,setTab]=useState('stock');
+  const {msg,vis,show}=useToast();
+
+  // ── i18n state ──
+  const [lang,setLang]=useState(()=>localStorage.getItem('app_language')||'');
+  const [showLangModal,setShowLangModal]=useState(!localStorage.getItem('app_language'));
+
+  // ── IG handle state ──
+  const [igHandle,setIgHandle]=useState(()=>localStorage.getItem('app_ig_handle')||'henrywmho');
+
+  const t=useCallback((key)=>{
+    const dict=translations[lang]||translations['zh-HK'];
+    const val=dict[key];
+    return val!==undefined?val:key;
+  },[lang]);
+
+  function selectLang(code){
+    setLang(code);
+    localStorage.setItem('app_language',code);
+    setShowLangModal(false);
+  }
+
+  const TABS_i18n=[
+    {id:'stock',  icon:'🧊', label:t('nav_stock')},
+    {id:'shoot',  icon:'📷', label:t('nav_shoot')},
+    {id:'lab',    icon:'🧪', label:t('nav_lab')},
+    {id:'log',    icon:'🗓', label:t('nav_log')},
+    {id:'badges', icon:'🏅', label:t('nav_badges')},
+  ];
+
+  const totalRolls =useMemo(()=>Object.values(state.stock).reduce((s,v)=>s+v,0),[state.stock]);
+  const loadedCount=useMemo(()=>state.rolls.filter(r=>r.status==='loaded').length,[state.rolls]);
+
+  if(showLangModal&&!lang){
+    return <LangModal onSelect={selectLang} onClose={null} igHandle={igHandle} setIgHandle={setIgHandle}/>;
+  }
+
+  return (
+    <div className="app">
+      {/* Language Modal (settings) */}
+      {showLangModal&&lang&&(
+        <LangModal onSelect={selectLang} onClose={()=>setShowLangModal(false)} igHandle={igHandle} setIgHandle={setIgHandle}/>
+      )}
+
+      <header className="topbar">
+        <div className="logo-mark">
+          <img src="logo.png" alt="logo" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'4px'}}/>
+        </div>
+        <div className="topbar-titles">
+          <div className="topbar-name">{t('app_title')}</div>
+          <div className="topbar-sub">{t('app_subtitle')}</div>
+        </div>
+        <a href={`https://www.instagram.com/${igHandle}/`} target="_blank" rel="noopener noreferrer" className="topbar-ig">
+          <span className="topbar-ig-icon">📸</span>
+          <span className="topbar-ig-text">
+            {igHandle==='henrywmho'?'@henrywmho':'Instagram'}
+          </span>
+        </a>
+        {/* Settings gear */}
+        <button className="topbar-settings" onClick={()=>setShowLangModal(true)} aria-label="Language settings">⚙️</button>
+        <div className="topbar-chips">
+          <div className="topbar-stat">
+            <span className="topbar-stat-num">{totalRolls}</span>
+            <span className="topbar-stat-label">{t('stat_stock')}</span>
+          </div>
+          <div className="topbar-stat">
+            <span className="topbar-stat-num">{loadedCount}</span>
+            <span className="topbar-stat-label">{t('stat_loaded')}</span>
+          </div>
+        </div>
+      </header>
+
+      <div className="view-container">
+        {tab==='stock' &&<StockTab  state={state} dispatch={dispatch} toast={show} t={t}/>}
+        {tab==='shoot' &&<ShootTab  state={state} dispatch={dispatch} toast={show} t={t}/>}
+        {tab==='lab'   &&<LabTab    state={state} dispatch={dispatch} toast={show} t={t}/>}
+        {tab==='log'   &&<LogTab    state={state} t={t}/>}
+        {tab==='badges'&&<BadgesTab state={state} t={t}/>}
+        <div style={{fontFamily:'var(--mono)',fontSize:'0.55rem',color:'#aaa',
+          textAlign:'center',padding:'24px 0 32px',letterSpacing:'1px'}}>
+          FilmVault made by IG @{igHandle}
+        </div>
+      </div>
+
+      <nav className="bottom-nav">
+        {TABS_i18n.map(tb=>(
+          <button key={tb.id} className={`nav-item ${tab===tb.id?'active':''}`} onClick={()=>setTab(tb.id)}>
+            <span className="nav-icon">{tb.icon}</span>
+            <span className="nav-label">{tb.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      <div className="toast-wrap">
+        <div className={`toast ${vis?'show':''}`}>{msg}</div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+
+</script>
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
+</script>
+</body>
+</html>
