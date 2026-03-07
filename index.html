@@ -370,10 +370,10 @@ body { font-family: var(--body); color: var(--k-black); -webkit-font-smoothing: 
 .top5-row  { display: flex; align-items: center; gap: 8px; }
 .top5-rank { font-family: var(--display); font-size: 0.68rem; font-weight: 900; color: #bbb; width: 16px; text-align: right; flex-shrink: 0; }
 .top5-rank.gold{color:#DAA520;} .top5-rank.silver{color:#888;} .top5-rank.bronze{color:#CD7F32;}
-.top5-bar-wrap { flex: 1; background: #eee; height: 7px; border-radius: 4px; overflow: hidden; border: 1px solid #ddd; }
+.top5-bar-wrap { width: 75px; flex-shrink: 0; background: #eee; height: 7px; border-radius: 4px; overflow: hidden; border: 1px solid #ddd; }
 .top5-bar{height:100%;background:var(--k-yellow);border-radius:3px;transition:width 0.4s ease;}
 .top5-bar.silver{background:#aaa;} .top5-bar.bronze{background:#CD7F32;} .top5-bar.rest{background:#ccc;}
-.top5-film-name { font-family: var(--mono); font-size: 0.6rem; color: #444; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px; font-weight: 700; }
+.top5-film-name { font-family: var(--mono); font-size: 0.6rem; color: #444; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; font-weight: 700; }
 .top5-count { font-family: var(--display); font-size: 0.75rem; font-weight: 900; color: var(--k-black); min-width: 18px; text-align: right; flex-shrink: 0; }
 .top5-empty { font-family: var(--mono); font-size: 0.58rem; color: #aaa; letter-spacing: 2px; text-transform: uppercase; text-align: center; padding: 4px 0; }
 
@@ -565,7 +565,7 @@ const translations = {
     form_notes:'手記 NOTES', ph_notes:'e.g. 4月去日本、試新鏡頭...',
     btn_save:'Save',
     modal_send_lab:'拎去沖 Send to Lab',
-    form_lab_name:'邊間舖 LAB', ph_lab_name:'e.g. Megatoni、自己沖',
+    form_lab_name:'邊間舖 LAB', ph_lab_name:'e.g. Lab A、自己沖',
     form_dev_price:'沖費 DEV PRICE',
     btn_confirm:'搞掂',
     modal_manage_cam:'管理機身', empty_cam:'仲未有相機',
@@ -659,7 +659,7 @@ const translations = {
     form_notes:'備註 NOTES', ph_notes:'e.g. 4月京都行、試用新鏡頭...',
     btn_save:'儲存',
     modal_send_lab:'送交沖曬 Send to Lab',
-    form_lab_name:'沖洗店 LAB NAME', ph_lab_name:'e.g. 台北影像、自己沖',
+    form_lab_name:'沖洗店 LAB NAME', ph_lab_name:'e.g. Lab A、自己沖',
     form_dev_price:'沖洗費用 DEV PRICE',
     btn_confirm:'確認送出',
     modal_manage_cam:'管理相機', empty_cam:'尚未新增相機紀錄',
@@ -753,7 +753,7 @@ const translations = {
     form_notes:'备注 NOTES', ph_notes:'e.g. 4月出行、试用新镜头...',
     btn_save:'保存',
     modal_send_lab:'送交冲洗 Send to Lab',
-    form_lab_name:'冲洗店 LAB NAME', ph_lab_name:'e.g. 某某冲洗店、自冲',
+    form_lab_name:'冲洗店 LAB NAME', ph_lab_name:'e.g. Lab A、自冲',
     form_dev_price:'冲洗费用 DEV PRICE',
     btn_confirm:'确认送出',
     modal_manage_cam:'管理相机', empty_cam:'尚未新增相机记录',
@@ -847,7 +847,7 @@ const translations = {
     form_notes:'Notes', ph_notes:'e.g. April trip, testing new lens...',
     btn_save:'Save',
     modal_send_lab:'Send to Lab',
-    form_lab_name:'Lab Name', ph_lab_name:'e.g. Local Lab, Self-dev',
+    form_lab_name:'Lab Name', ph_lab_name:'e.g. Lab A, Self-dev',
     form_dev_price:'Dev Price',
     btn_confirm:'Confirm',
     modal_manage_cam:'Manage Cameras', empty_cam:'No cameras added yet',
@@ -908,9 +908,9 @@ const translations = {
 // ── Language Modal (Onboarding + Settings) ──
 function LangModal({onSelect, onClose, igHandle, setIgHandle}){
   const LANGS=[
-    {code:'zh-HK', label:'菲林未GG，銀包先GG💸'},
-    {code:'zh-TW', label:'拍底片就是在燒錢 🔥'},
-    {code:'zh-CN', label:'胶片一响，黄金万两 💰'},
+    {code:'zh-HK', label:'影菲林影到變窮撚 💸'},
+    {code:'zh-TW', label:'底片是個無底大錢坑 🕳️'},
+    {code:'zh-CN', label:'买胶卷买到吃土 💰'},
     {code:'en',    label:'Shoot film, stay broke. 💸'},
   ];
   const [igInput, setIgInput] = useState(igHandle||'henrywmho');
@@ -931,7 +931,7 @@ function LangModal({onSelect, onClose, igHandle, setIgHandle}){
             width:28,height:28,borderRadius:'50%',cursor:'pointer',
             display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.9rem'}}>✕</button>
         )}
-        <div className="lang-modal-title">你是哪一種攝影玩家？<br/>What's your shooting vibe?</div>
+        <div className="lang-modal-title">請選擇語言<br/>Please select a language</div>
         <div className="lang-modal-sub">FilmVault · 菲林管理</div>
         {LANGS.map(l=>(
           <button key={l.code} className="lang-btn" onClick={()=>onSelect(l.code)}
@@ -1180,7 +1180,7 @@ function StockTab({state,dispatch,toast,t}){
         <Modal title={t('modal_add_stock')} onClose={()=>setShowAdd(false)}
           footer={<><button className="btn-modal-cancel" onClick={()=>setShowAdd(false)}>{t('btn_cancel')}</button><button className="btn-modal-ok" onClick={handleSubmit}>{t('btn_confirm_stock')}</button></>}>
           {/* ── Quick-select helpers side-by-side (auto-fill only) ── */}
-          <div className="form-section-label">{t('quick_select')} <span className="form-opt">{t('label_optional')}</span></div>
+          <div className="form-section-label">{t('quick_select')}</div>
           <div className="form-row" style={{marginBottom:0}}>
             <div className="form-group">
               <label className="form-label" style={{fontSize:'0.48rem'}}>{t('form_brand')}</label>
@@ -1200,7 +1200,7 @@ function StockTab({state,dispatch,toast,t}){
           </div>
           {/* ── Single confirmed name field (only value submitted to DB) ── */}
           <div className="form-group" style={{marginBottom:16}}>
-            <label className="form-label">{t('form_confirm_name')} <span style={{color:'var(--k-red)',fontFamily:'var(--mono)',fontSize:'0.48rem',letterSpacing:1,marginLeft:4}}>{t('label_required')}</span></label>
+            <label className="form-label">{t('form_confirm_name')}</label>
             <input className="form-input" value={form.filmFullName}
               onChange={e=>F('filmFullName',e.target.value)}
               placeholder={t('ph_film_name')} autoComplete="off"/>
@@ -1916,6 +1916,10 @@ function App(){
     const val=dict[key];
     return val!==undefined?val:key;
   },[lang]);
+
+  useEffect(()=>{
+    document.title=`${t('app_title')} · ${t('app_subtitle')}`;
+  },[t]);
 
   function selectLang(code){
     setLang(code);
