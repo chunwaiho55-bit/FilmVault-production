@@ -368,7 +368,7 @@ body { font-family: var(--body); color: var(--k-black); -webkit-font-smoothing: 
 .top5-title-month { font-family: var(--display); font-size: 0.75rem; font-weight: 900; color: var(--k-black); background: var(--k-yellow); border: 2px solid var(--k-black); border-radius: 6px; padding: 1px 8px; }
 .top5-list { display: flex; flex-direction: column; gap: 7px; }
 .top5-row  { display: flex; align-items: center; gap: 8px; }
-.top5-rank { font-family: var(--display); font-size: 0.68rem; font-weight: 900; color: #bbb; width: 16px; text-align: right; flex-shrink: 0; }
+.top5-rank { font-family: var(--display); font-size: 0.68rem; font-weight: 900; color: #bbb; width: 24px; text-align: left; flex-shrink: 0; }
 .top5-rank.gold{color:#DAA520;} .top5-rank.silver{color:#888;} .top5-rank.bronze{color:#CD7F32;}
 .top5-bar-wrap { width: 75px; flex-shrink: 0; background: #eee; height: 7px; border-radius: 4px; overflow: hidden; border: 1px solid #ddd; }
 .top5-bar{height:100%;background:var(--k-yellow);border-radius:3px;transition:width 0.4s ease;}
@@ -554,12 +554,12 @@ const translations = {
     btn_send_lab:'🧪 拎去沖',
     modal_load_film:'落片上機 Load Film',
     form_select_film:'揀菲林 FILM', tag_expired:'[過咗期]',
-    form_select_cam:'揀相機 CAMERA', opt_cam:'— 揀部舊機 —',
-    form_new_cam:'未有就新增', ph_cam:'e.g. Leica M6、Nikon FM2',
+    form_select_cam:'揀相機 CAMERA', opt_cam:'— 揀部相機 —',
+    form_new_cam:'未有就新增', ph_cam:'e.g. 相機1',
     section_tags:'拍攝備忘 · 可選填',
     form_theme:'影咩 THEME', ph_theme:'e.g. 生日Party、街拍',
     form_location:'喺邊度', ph_location:'e.g. 西環',
-    form_people:'同邊個', ph_people:'e.g. Mary',
+    form_people:'同邊個', ph_people:'e.g. 朋友1',
     btn_confirm_load:'✅ 上彈',
     modal_notes:'拍攝手記',
     form_notes:'手記 NOTES', ph_notes:'e.g. 4月去日本、試新鏡頭...',
@@ -648,12 +648,12 @@ const translations = {
     btn_send_lab:'🧪 送交沖曬',
     modal_load_film:'裝入相機 Load Film',
     form_select_film:'選擇底片 FILM', tag_expired:'[已過期]',
-    form_select_cam:'選擇相機 CAMERA', opt_cam:'— 選擇已有相機 —',
-    form_new_cam:'或新增相機', ph_cam:'e.g. Leica M6、Nikon FM2',
+    form_select_cam:'選擇相機 CAMERA', opt_cam:'— 選擇相機 —',
+    form_new_cam:'或新增相機', ph_cam:'e.g. 相機1',
     section_tags:'拍攝標記 · 全部可選',
     form_theme:'主題 THEME', ph_theme:'e.g. 生日派對、街拍',
     form_location:'地點', ph_location:'e.g. 西門町',
-    form_people:'在場人士', ph_people:'e.g. Mary',
+    form_people:'在場人士', ph_people:'e.g. 朋友1',
     btn_confirm_load:'✅ 確認裝片',
     modal_notes:'拍攝備註',
     form_notes:'備註 NOTES', ph_notes:'e.g. 4月京都行、試用新鏡頭...',
@@ -742,12 +742,12 @@ const translations = {
     btn_send_lab:'🧪 送交冲洗',
     modal_load_film:'装入相机 Load Film',
     form_select_film:'选择胶片 FILM', tag_expired:'[已过期]',
-    form_select_cam:'选择相机 CAMERA', opt_cam:'— 选择已有相机 —',
-    form_new_cam:'或新增相机', ph_cam:'e.g. Leica M6、Nikon FM2',
+    form_select_cam:'选择相机 CAMERA', opt_cam:'— 选择相机 —',
+    form_new_cam:'或新增相机', ph_cam:'e.g. 相机1',
     section_tags:'拍摄标记 · 全部可选',
     form_theme:'主题 THEME', ph_theme:'e.g. 生日派对、街拍',
     form_location:'地点', ph_location:'e.g. 外滩',
-    form_people:'在场人士', ph_people:'e.g. 小明',
+    form_people:'在场人士', ph_people:'e.g. 朋友1',
     btn_confirm_load:'✅ 确认装片',
     modal_notes:'拍摄备注',
     form_notes:'备注 NOTES', ph_notes:'e.g. 4月出行、试用新镜头...',
@@ -836,12 +836,12 @@ const translations = {
     btn_send_lab:'🧪 Send to Lab',
     modal_load_film:'Load Film',
     form_select_film:'Select Film', tag_expired:'[Expired]',
-    form_select_cam:'Select Camera', opt_cam:'— Select Existing Camera —',
-    form_new_cam:'Or Add New Camera', ph_cam:'e.g. Leica M6, Nikon FM2',
+    form_select_cam:'Select Camera', opt_cam:'— Select Camera —',
+    form_new_cam:'Or Add New Camera', ph_cam:'e.g. Camera 1',
     section_tags:'Shoot Tags · All Optional',
     form_theme:'Theme', ph_theme:'e.g. Birthday, Street',
     form_location:'Location', ph_location:'e.g. Central Park',
-    form_people:'People', ph_people:'e.g. Mary',
+    form_people:'People', ph_people:'e.g. Friend 1',
     btn_confirm_load:'✅ Confirm Load',
     modal_notes:'Shoot Notes',
     form_notes:'Notes', ph_notes:'e.g. April trip, testing new lens...',
@@ -1148,7 +1148,7 @@ function StockTab({state,dispatch,toast,t}){
       {filmList.length===0&&<div className="empty"><span className="empty-icon">📦</span>{t('empty_stock')}<br/>{t('empty_stock_sub')}</div>}
       {filmList.map(film=>{
         const low=film.qty===1, zero=film.qty===0;
-        const accent=film.expired?'var(--k-red)':low?'var(--k-orange)':zero?'#ddd':'var(--k-yellow)';
+        const accent=film.expired?'var(--k-red)':zero?'#ddd':'var(--k-yellow)';
         return (
           <div key={film.id} className="card" style={{borderLeft:`3px solid ${accent}`}}>
             <div style={{display:'flex',alignItems:'flex-start',gap:12}}>
@@ -1159,7 +1159,7 @@ function StockTab({state,dispatch,toast,t}){
                     {film.name||film.filmName||'—'}
                   </span>
                   {film.expired&&<span className="pill expired">{t('pill_expired')}</span>}
-                  {low&&!film.expired&&<span className="pill low-stock">{t('pill_low_stock')}</span>}
+
                 </div>
                 <div className="card-sub" style={{marginTop:4}}>{film.expiry?`有效期至 ${film.expiry}`:''}</div>
               </div>
@@ -1352,7 +1352,12 @@ function ShootTab({state,dispatch,toast,t}){
             <label className="form-label">{t('form_select_cam')}</label>
             <select className="form-select" value={form.cameraId} onChange={e=>{F('cameraId',e.target.value);F('cameraNew','');}}>
               <option value="">{t('opt_cam')}</option>
-              {freeCams.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
+              {state.cameras.map(c=>{
+                const loadedRoll=state.rolls.find(r=>r.cameraId===c.id&&r.status==='loaded');
+                return <option key={c.id} value={c.id} disabled={!!loadedRoll}>
+                  {loadedRoll?`${c.name}  ▶ ${loadedRoll.filmName}`:c.name}
+                </option>;
+              })}
             </select>
           </div>
           <div className="form-group">
@@ -1918,8 +1923,36 @@ function App(){
   },[lang]);
 
   useEffect(()=>{
-    document.title=`${t('app_title')} · ${t('app_subtitle')}`;
-  },[t]);
+    const title=`${t('app_title')} · ${t('app_subtitle')}`;
+    const sub=t('app_subtitle');
+    // Update document title
+    document.title=title;
+    // Update apple-mobile-web-app-title meta
+    let appleMeta=document.querySelector('meta[name="apple-mobile-web-app-title"]');
+    if(appleMeta) appleMeta.setAttribute('content', t('app_title'));
+    // Update html lang attribute
+    const langMap={'zh-HK':'zh-HK','zh-TW':'zh-TW','zh-CN':'zh-CN','en':'en'};
+    document.documentElement.lang=langMap[lang]||'zh-HK';
+    // Inject dynamic inline manifest to override static manifest.json
+    const manifestData={
+      name:`${t('app_title')} ${sub}`,
+      short_name:t('app_title'),
+      start_url:'.',
+      display:'standalone',
+      background_color:'#FFD100',
+      theme_color:'#000000',
+      icons:[{src:'icon.svg',sizes:'any',type:'image/svg+xml'}]
+    };
+    const blob=new Blob([JSON.stringify(manifestData)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    let link=document.querySelector('link[rel="manifest"]');
+    if(link){
+      const old=link.getAttribute('data-blob');
+      if(old) URL.revokeObjectURL(old);
+      link.setAttribute('href',url);
+      link.setAttribute('data-blob',url);
+    }
+  },[t,lang]);
 
   function selectLang(code){
     setLang(code);
