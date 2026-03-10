@@ -1251,7 +1251,7 @@ function ShootTab({state,dispatch,toast,t}){
     const film=state.films.find(f=>f.id===form.filmId);
     let cam=state.cameras.find(c=>c.name.toLowerCase()===camName.toLowerCase());
     if(!cam){cam={id:uid(),name:camName};dispatch({type:'ADD_CAMERA',camera:cam});}
-    const roll={id:uid(),filmId:film.id,filmName:`${film.brand} ${film.name}`,cameraId:cam.id,cameraName:cam.name,
+    const roll={id:uid(),filmId:film.id,filmName:film.name,cameraId:cam.id,cameraName:cam.name,
       status:'loaded',loadedAt:nowISO(),notes:'',
       theme:(form.theme||'').trim(),location:(form.location||'').trim(),friends:(form.friends||'').trim(),
       price:0,devPrice:0,lab:'',downloadUrl:'',folderName:'',posted:false};
@@ -1719,8 +1719,6 @@ function LogTab({state,t}){
               <div className="log-dot-col"><div className="log-dot stock"/></div>
               <div className="log-body">
                 <div className="log-main">{ev.title.replace(/^入庫：/,'')}</div>
-                {ev.detail&&<div className="log-detail">{ev.detail}</div>}
-                {ev.price>0&&<div className="log-price">{fmtPrice(ev.price)}</div>}
               </div>
               <div className="log-time">{formatDate(ev.date)}</div>
             </div>
@@ -1873,7 +1871,7 @@ function reducer(state,action){
       s.films=[...state.films,action.film];
       s.stock={...state.stock,[action.film.id]:action.qty};
       s.log=[...state.log,{id:uid(),type:'stock',date:today(),timestamp:nowISO(),
-        title:`入庫：${action.qty} 卷 ${action.film.brand} ${action.film.name}`,
+        title:`入庫：${action.qty} 卷 ${action.film.name}`,
         detail:`購入價格 ${fmtPrice(action.price)}`,price:action.price||0,qty:action.qty}]; break;
     case 'ADD_STOCK':{
       const prev=state.stock[action.filmId]||0;
