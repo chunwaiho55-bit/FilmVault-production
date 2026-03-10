@@ -525,7 +525,7 @@ const { useState, useEffect, useCallback, useMemo } = React;
 // ═══════════════════════════════════════════════════════════════
 const translations = {
   'zh-HK': {
-    app_title:'FilmVault', app_subtitle:'菲林倉',
+    app_title:'FilmVault', app_subtitle:'菲林庫',
     stat_stock:'庫存', stat_loaded:'服役',
     nav_stock:'片倉', nav_shoot:'上機', nav_lab:'沖曬', nav_log:'記錄', nav_badges:'勳章',
     stock_total_rolls:'倉底存貨', stock_film_types:'款式', stock_expired_count:'過咗期',
@@ -1921,34 +1921,35 @@ function App(){
   },[lang]);
 
   useEffect(()=>{
-    const title=`${t('app_title')} · ${t('app_subtitle')}`;
-    const sub=t('app_subtitle');
-    // Update document title
-    document.title=title;
-    // Update apple-mobile-web-app-title meta
+    const fullTitle=`${t('app_title')} · ${t('app_subtitle')}`;
+    const shortTitle=lang==='en'?'Film Vault':`Film Vault ${t('app_subtitle')}`;
+    // 1. 更新網頁標題
+    document.title=fullTitle;
+    // 2. 更新 iOS 專用 Meta
     let appleMeta=document.querySelector('meta[name="apple-mobile-web-app-title"]');
-    if(appleMeta) appleMeta.setAttribute('content', t('app_title'));
-    // Update html lang attribute
+    if(appleMeta) appleMeta.setAttribute('content',shortTitle);
+    // 3. 更新 html lang
     const langMap={'zh-HK':'zh-HK','zh-TW':'zh-TW','zh-CN':'zh-CN','en':'en'};
     document.documentElement.lang=langMap[lang]||'zh-HK';
-    // Inject dynamic inline manifest to override static manifest.json
-    const manifestData={
-      name:`${t('app_title')} ${sub}`,
-      short_name:t('app_title'),
-      start_url:'.',
-      display:'standalone',
-      background_color:'#FFD100',
-      theme_color:'#000000',
-      icons:[{src:'icon.svg',sizes:'any',type:'image/svg+xml'}]
-    };
-    const blob=new Blob([JSON.stringify(manifestData)],{type:'application/json'});
-    const url=URL.createObjectURL(blob);
-    let link=document.querySelector('link[rel="manifest"]');
-    if(link){
-      const old=link.getAttribute('data-blob');
-      if(old) URL.revokeObjectURL(old);
-      link.setAttribute('href',url);
-      link.setAttribute('data-blob',url);
+    // 4. 動態生成 manifest
+    const manifestLink=document.querySelector('link[rel="manifest"]');
+    if(manifestLink){
+      const dynamicManifest={
+        name:fullTitle,
+        short_name:shortTitle,
+        start_url:'.',
+        display:'standalone',
+        background_color:'#FFFDF7',
+        theme_color:'#000000',
+        icons:[
+          {src:'logo.png',sizes:'192x192',type:'image/png'},
+          {src:'logo.png',sizes:'512x512',type:'image/png'}
+        ]
+      };
+      const blob=new Blob([JSON.stringify(dynamicManifest)],{type:'application/json'});
+      const manifestURL=URL.createObjectURL(blob);
+      manifestLink.setAttribute('href',manifestURL);
+      return ()=>URL.revokeObjectURL(manifestURL);
     }
   },[t,lang]);
 
