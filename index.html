@@ -922,6 +922,33 @@ function LangModal({onSelect, onClose, igHandle, setIgHandle}){
     localStorage.setItem('app_ig_handle', clean);
   }
 
+  function exportCSV(){
+    const dataStr=localStorage.getItem('ff_v8');
+    if(!dataStr){alert('暫無資料可匯出 / No data to export');return;}
+    try{
+      const data=JSON.parse(dataStr);
+      const logs=data.log||[];
+      if(logs.length===0){alert('暫無紀錄可匯出 / No logs to export');return;}
+      let csv='\uFEFF';
+      csv+='日期 Date,類型 Type,標題 Title,詳情 Detail,花費 Amount\n';
+      logs.forEach(row=>{
+        const date=row.date||'';
+        const type=row.type||'';
+        const title=(row.title||'').split('"').join('""');
+        const detail=(row.detail||'').split('"').join('""');
+        const price=row.price||row.devPrice||0;
+        csv+=`"${date}","${type}","${title}","${detail}","${price}"\n`;
+      });
+      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url;
+      a.download=`FilmVault_Journey_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.csv`;
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }catch(e){alert('匯出失敗 / Export failed');}
+  }
+
   return(
     <div className="lang-modal-bg">
       <div className="lang-modal-box" style={{overflowY:'auto',maxHeight:'90dvh'}}>
@@ -945,6 +972,7 @@ function LangModal({onSelect, onClose, igHandle, setIgHandle}){
 
         {/* IG Handle Setting — only shown in settings mode (onClose exists) */}
         {onClose&&(
+          <>
           <div style={{marginTop:20,borderTop:'2px solid #e8e8e8',paddingTop:16}}>
             <div style={{fontFamily:'var(--mono)',fontSize:'0.5rem',color:'#aaa',
               letterSpacing:'2px',textTransform:'uppercase',marginBottom:10,fontWeight:700}}>
@@ -981,6 +1009,23 @@ function LangModal({onSelect, onClose, igHandle, setIgHandle}){
               </button>
             </div>
           </div>
+          {/* 資料管理區塊 */}
+          <div style={{marginTop:20,borderTop:'2px solid #e8e8e8',paddingTop:16}}>
+            <div style={{fontFamily:'var(--mono)',fontSize:'0.5rem',color:'#aaa',letterSpacing:'2px',textTransform:'uppercase',marginBottom:10,fontWeight:700}}>
+              資料管理 · Data Management
+            </div>
+            <button
+              onClick={exportCSV}
+              style={{width:'100%',background:'#fff',border:'2px solid var(--k-black)',borderRadius:'10px',
+                color:'var(--k-black)',fontFamily:'var(--mono)',fontSize:'0.75rem',fontWeight:700,
+                padding:'12px',cursor:'pointer',boxShadow:'3px 3px 0 #000',
+                transition:'transform 0.08s, box-shadow 0.08s',display:'flex',justifyContent:'center',alignItems:'center',gap:'8px'}}
+              onMouseDown={e=>{e.currentTarget.style.transform='translate(2px,2px)';e.currentTarget.style.boxShadow='none';}}
+              onMouseUp={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='3px 3px 0 #000';}}>
+              <span>📊</span> 一鍵匯出旅程紀錄 (CSV)
+            </button>
+          </div>
+          </>
         )}
       </div>
     </div>
