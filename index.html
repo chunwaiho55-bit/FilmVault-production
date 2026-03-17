@@ -540,7 +540,7 @@ const translations = {
     form_film:'型號 FILM', opt_film:'— 型號 —', opt_film_first:'— 先揀品牌 —',
     form_confirm_name:'填入菲林名稱 FILM NAME',
     ph_film_name:'例：Kodak Portra 800',
-    form_qty:'數量 QTY', form_price:'購買價格 PRICE',
+    form_qty:'數量 QTY', form_price:'每卷價格 PRICE/ROLL',
     section_optional:'其他資料 · Optional',
     form_expiry:'有效期 EXPIRY',
     btn_cancel:'取消', btn_confirm_stock:'✅ 搞掂入雪櫃',
@@ -634,7 +634,7 @@ const translations = {
     form_film:'型號 FILM', opt_film:'— 型號 —', opt_film_first:'— 先選品牌 —',
     form_confirm_name:'確認或自訂入庫名稱 CONFIRM OR CUSTOMIZE',
     ph_film_name:'例如：Kodak Portra 800...',
-    form_qty:'數量 QTY', form_price:'購買價格 PRICE',
+    form_qty:'數量 QTY', form_price:'每卷價格 PRICE/ROLL',
     section_optional:'可選欄位 · Optional',
     form_expiry:'有效期限 EXPIRY',
     btn_cancel:'取消', btn_confirm_stock:'✅ 確認入庫',
@@ -728,7 +728,7 @@ const translations = {
     form_film:'型号 FILM', opt_film:'— 型号 —', opt_film_first:'— 先选品牌 —',
     form_confirm_name:'确认或自定义入库名称 CONFIRM OR CUSTOMIZE',
     ph_film_name:'例：Kodak Portra 800',
-    form_qty:'数量 QTY', form_price:'购买价格 PRICE',
+    form_qty:'数量 QTY', form_price:'每卷价格 PRICE/ROLL',
     section_optional:'可选字段 · Optional',
     form_expiry:'有效期限 EXPIRY',
     btn_cancel:'取消', btn_confirm_stock:'✅ 确认入库',
@@ -822,7 +822,7 @@ const translations = {
     form_film:'Film Name', opt_film:'— Film —', opt_film_first:'— Select Brand First —',
     form_confirm_name:'Confirm or Customize Name',
     ph_film_name:'e.g. Kodak Portra 800...',
-    form_qty:'Quantity', form_price:'Price',
+    form_qty:'Quantity', form_price:'Price / Roll',
     section_optional:'Optional Fields',
     form_expiry:'Expiry Date',
     btn_cancel:'Cancel', btn_confirm_stock:'✅ Confirm Add',
@@ -992,21 +992,26 @@ function LangModal({onSelect, onClose, igHandle, setIgHandle}){
 // CONSTANTS — Brand → Films catalogue
 // ═══════════════════════════════════════════════════
 const FILM_CATALOGUE = {
-  'Kodak':      ['Ultramax 400','ColorPlus 200','Gold 200','Portra 400','ProImage 100','Ektar 100','Portra 160','T-Max 400','Tri-X 400','Ektachrome E100','T-Max 100','Portra 800'],
-  'Cinestill':  ['800Tungsten','50Daylight','400Dynamic'],
-  'Fujifilm':   ['Fujicolor 100','Fujicolor 200'],
-  'Ilford':     ['HP5 Plus','XP2 Super 400','Delta 400','Delta 100','FP4+ 125','Delta 3200'],
-  'Lomography': ['Lomochrome Metropolis XR','Lomochrome Purple','Color 400','Color 800',"LomoChrome Color '92",'Redscale XR'],
-  'Amber':      ['D400','D100','T200','T800'],
-  'Cyberpunk':  ['400D','640T','100D','320T'],
-  'RETOCOLOR':  ['Aqua 400','Glow 400','Maple 100','Prism 400','Mosaic 100','Prism 200'],
-  'Agfa':       ['AGFA APX 400','AGFA APX 100','AgfaPhoto Colour 400'],
-  'CANDIDO':    ['CANDIDO800','CANDIDO400','CANDIDO200'],
-  'Hitchcock':  ['5203 50D','Double-X 5222 BW'],
-  'ORWO':       ['Wolfen Original NC500','Wolfen Original NC400'],
-  '其他':       ['Kentmere 100','Kentmere 200','Rollei Retro 400S','Rollei RETRO 80S','Bergger Pancro 400','Nolan 5203 50D','Seagull Oriental 100','Harman Phoenix II 200','Lucky C200'],
+  'Kodak':         ['Ultramax 400','ColorPlus 200','Gold 200','Portra 400','ProImage 100','Ektar 100','Portra 160','T-Max 400','Tri-X 400','Ektachrome E100','T-Max 100','Portra 800','Kodacolor 200','Kodacolor 100'],
+  'Cinestill':     ['800Tungsten','50Daylight','400Dynamic'],
+  'Fujifilm':      ['Fujicolor 100','Fujicolor 200','Pro 400H','Fujifilm 400'],
+  'Ilford':        ['HP5 Plus','XP2 Super 400','Delta 400','Delta 100','FP4+ 125','Delta 3200'],
+  'Lomography':    ['Lomochrome Metropolis XR','Lomochrome Purple','Color 400','Color 800',"LomoChrome Color '92",'Redscale XR','Lomochrome Classicolor 200'],
+  'Harman':        ['Phoenix II','Switch Azure 125','Red 125'],
+  'Adox':          ['Color Mission Helios'],
+  'Light Lens Lab':['125 B&W'],
+  'Ferrania':      ['P33'],
+  'Lucky':         ['Color 200'],
+  'Amber':         ['D400','D100','T200','T800'],
+  'Cyberpunk':     ['400D','640T','100D','320T'],
+  'RETOCOLOR':     ['Aqua 400','Glow 400','Maple 100','Prism 400','Mosaic 100','Prism 200'],
+  'Agfa':          ['AGFA APX 400','AGFA APX 100','AgfaPhoto Colour 400'],
+  'CANDIDO':       ['CANDIDO800','CANDIDO400','CANDIDO200'],
+  'Hitchcock':     ['5203 50D','Double-X 5222 BW'],
+  'ORWO':          ['Wolfen Original NC500','Wolfen Original NC400'],
+  '其他':          ['Kentmere 100','Kentmere 200','Rollei Retro 400S','Rollei RETRO 80S','Bergger Pancro 400','Nolan 5203 50D','Seagull Oriental 100'],
 };
-const BRANDS = Object.keys(FILM_CATALOGUE);
+const BRANDS = Object.keys(FILM_CATALOGUE).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'}));
 
 // ═══════════════════════════════════════════════════
 // STORAGE — DB v8: per-transaction price on stock log entries
@@ -1101,7 +1106,7 @@ function StockTab({state,dispatch,toast,t}){
   };
 
   // Film options cascade from quick-select brand
-  const filmNames=form.quickBrand?FILM_CATALOGUE[form.quickBrand]||[]:[];
+  const filmNames=form.quickBrand?[...(FILM_CATALOGUE[form.quickBrand]||[])].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'})):[];
 
   const filmList=useMemo(()=>
     state.films.map(f=>({...f,qty:state.stock[f.id]||0,expired:isExpired(f.expiry)})).sort((a,b)=>a.name.localeCompare(b.name)),
@@ -1117,9 +1122,9 @@ function StockTab({state,dispatch,toast,t}){
     // Store full name in both brand and name fields for display consistency
     const existing=state.films.find(f=>f.name===fullName);
     if(existing){
-      dispatch({type:'ADD_STOCK',filmId:existing.id,qty,notes:fullName,price:priceVal});
+      dispatch({type:'ADD_STOCK',filmId:existing.id,qty,notes:fullName,price:priceVal*qty});
     }else{
-      dispatch({type:'ADD_FILM_AND_STOCK',film:{id:uid(),brand:'',name:fullName,expiry:form.expiry,barcodes:[]},qty,price:priceVal});
+      dispatch({type:'ADD_FILM_AND_STOCK',film:{id:uid(),brand:'',name:fullName,expiry:form.expiry,barcodes:[]},qty,price:priceVal*qty});
     }
     toast(`✓ ${qty}× ${fullName} · ${fmtPrice(priceVal)}`);
     setShowAdd(false);setForm(EMPTY);
@@ -1146,7 +1151,7 @@ function StockTab({state,dispatch,toast,t}){
         <span className="sec-count">{filmList.filter(f=>f.qty>0).length}</span>
       </div>
       {filmList.length===0&&<div className="empty"><span className="empty-icon">📦</span>{t('empty_stock')}<br/>{t('empty_stock_sub')}</div>}
-      {filmList.map(film=>{
+      {filmList.filter(f=>f.qty>0).map(film=>{
         const low=film.qty===1, zero=film.qty===0;
         const accent=film.expired?'var(--k-red)':zero?'#ddd':'var(--k-yellow)';
         return (
@@ -1155,7 +1160,7 @@ function StockTab({state,dispatch,toast,t}){
               <div style={{flex:1,minWidth:0}}>
                 <div className="card-title" style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
                   <span style={{flex:1,minWidth:0}}>
-                    {film.brand&&<span style={{fontFamily:'var(--mono)',fontSize:'0.52rem',color:'#888',marginRight:5,fontWeight:700}}>{film.brand}</span>}
+
                     {film.name||film.filmName||'—'}
                   </span>
                   {film.expired&&<span className="pill expired">{t('pill_expired')}</span>}
@@ -1165,10 +1170,6 @@ function StockTab({state,dispatch,toast,t}){
               </div>
               <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:4}}>
                 <div className={`stock-qty ${low&&!film.expired?'low':zero?'zero':''}`} style={{color:film.expired?'var(--k-red)':undefined}}>{film.qty}</div>
-                <div className="qty-row">
-                  <button className="qty-btn" onClick={()=>dispatch({type:'ADJUST_STOCK',filmId:film.id,delta:1})}>+</button>
-                  <button className="qty-btn" onClick={()=>dispatch({type:'ADJUST_STOCK',filmId:film.id,delta:-1})}>−</button>
-                </div>
               </div>
             </div>
           </div>
