@@ -1130,7 +1130,7 @@ function useToast(){
 
 function Modal({title,onClose,children,footer,single,centered}){
   useEffect(()=>{ const h=e=>{if(e.key==='Escape')onClose();}; window.addEventListener('keydown',h); return()=>window.removeEventListener('keydown',h); },[onClose]);
-  return (
+  return ReactDOM.createPortal(
     <div className="modal-bg" style={centered?{alignItems:'center'}:undefined} onClick={e=>{if(e.target.className==='modal-bg')onClose();}}>
       <div className="modal" style={centered?{borderRadius:20,borderTop:'3px solid var(--k-black)'}:undefined}>
         <div className="modal-drag"/>
@@ -1138,7 +1138,8 @@ function Modal({title,onClose,children,footer,single,centered}){
         <div className="modal-body">{children}</div>
         {footer&&<div className={`modal-footer ${single?'single':''}`}>{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
