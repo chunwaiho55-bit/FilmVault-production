@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="FilmVault">
 <link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="logo.png">
 <title>FilmVault · 菲林倉</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
@@ -462,9 +463,9 @@ body { font-family: var(--body); color: var(--k-black); -webkit-font-smoothing: 
 .badge-target { font-family: var(--mono); font-size: 0.42rem; color: #aaa; font-weight: 700; }
 
 /* TOAST */
-.toast-wrap { position: fixed; bottom: calc(64px + var(--safe-b) + 12px); left: 50%; transform: translateX(-50%); z-index: 200; pointer-events: none; }
-.toast { background: var(--bg); color: var(--k-yellow); font-family: var(--mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 1px; padding: 10px 18px; border-radius: 20px; border: 2px solid var(--k-black); white-space: nowrap; opacity: 0; transform: translateY(8px); transition: all 0.25s ease; max-width: calc(100vw - 40px); overflow: hidden; text-overflow: ellipsis; }
-.toast.show { opacity: 1; transform: translateY(0); }
+.toast-wrap { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 1100; pointer-events: none; }
+.toast { background: #fff; color: var(--k-black); font-family: var(--display); font-weight: 900; font-size: 1rem; letter-spacing: 1px; padding: 20px 30px; border-radius: 12px; border: 2px solid var(--k-black); box-shadow: 4px 4px 0 var(--k-black); text-align: center; white-space: nowrap; opacity: 0; transform: scale(0.9); transition: transform 0.3s var(--ease-neo), opacity 0.3s; max-width: calc(100vw - 40px); overflow: hidden; text-overflow: ellipsis; }
+.toast.show { opacity: 1; transform: scale(1); }
 
 select option { background: #fff; color: var(--k-black); }
 
