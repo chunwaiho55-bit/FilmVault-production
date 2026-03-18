@@ -463,9 +463,9 @@ body { font-family: var(--body); color: var(--k-black); -webkit-font-smoothing: 
 .badge-target { font-family: var(--mono); font-size: 0.42rem; color: #aaa; font-weight: 700; }
 
 /* TOAST */
-.toast-wrap { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 1100; pointer-events: none; }
-.toast { background: #fff; color: var(--k-black); font-family: var(--display); font-weight: 900; font-size: 1rem; letter-spacing: 1px; padding: 20px 30px; border-radius: 12px; border: 2px solid var(--k-black); box-shadow: 4px 4px 0 var(--k-black); text-align: center; white-space: nowrap; opacity: 0; transform: scale(0.9); transition: transform 0.3s var(--ease-neo), opacity 0.3s; max-width: calc(100vw - 40px); overflow: hidden; text-overflow: ellipsis; }
-.toast.show { opacity: 1; transform: scale(1); }
+.toast-wrap { position: fixed; bottom: calc(64px + var(--safe-b) + 12px); left: 50%; transform: translateX(-50%); z-index: 200; pointer-events: none; }
+.toast { background: var(--k-black); color: var(--k-yellow); font-family: var(--mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 1px; padding: 10px 18px; border-radius: 20px; border: 2px solid var(--k-black); white-space: nowrap; opacity: 0; transform: translateY(8px); transition: all 0.25s ease; max-width: calc(100vw - 40px); overflow: hidden; text-overflow: ellipsis; }
+.toast.show { opacity: 1; transform: translateY(0); }
 
 select option { background: #fff; color: var(--k-black); }
 
@@ -1128,11 +1128,11 @@ function useToast(){
   return {msg,vis,show};
 }
 
-function Modal({title,onClose,children,footer,single}){
+function Modal({title,onClose,children,footer,single,centered}){
   useEffect(()=>{ const h=e=>{if(e.key==='Escape')onClose();}; window.addEventListener('keydown',h); return()=>window.removeEventListener('keydown',h); },[onClose]);
   return (
-    <div className="modal-bg" onClick={e=>{if(e.target.className==='modal-bg')onClose();}}>
-      <div className="modal">
+    <div className="modal-bg" style={centered?{alignItems:'center'}:undefined} onClick={e=>{if(e.target.className==='modal-bg')onClose();}}>
+      <div className="modal" style={centered?{borderRadius:20,borderTop:'3px solid var(--k-black)'}:undefined}>
         <div className="modal-drag"/>
         <div className="modal-header"><div className="modal-title">{title}</div><button className="modal-close" onClick={onClose}>✕</button></div>
         <div className="modal-body">{children}</div>
@@ -1829,7 +1829,7 @@ function LogTab({state,dispatch,t}){
       </div>
       {/* 撤銷確認彈窗 */}
       {undoLog&&(
-        <Modal title={t('btn_undo')} onClose={()=>setUndoLog(null)}
+        <Modal title={t('btn_undo')} onClose={()=>setUndoLog(null)} centered
           footer={
             <>
               <button className="btn-modal-cancel" onClick={()=>setUndoLog(null)}>{t('btn_cancel')}</button>
