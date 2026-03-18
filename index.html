@@ -82,7 +82,7 @@ body { font-family: var(--body); color: var(--k-black); -webkit-font-smoothing: 
 
 
 .topbar-titles { display: flex; flex-direction: column; justify-content: center; min-width: 0; flex-shrink: 1; }
-.topbar-name { font-family: var(--display); font-size: 1.05rem; font-weight: 900; color: var(--k-black); letter-spacing: -0.5px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topbar-name { font-family: var(--display); font-size: 1rem; font-weight: 900; color: var(--k-black); letter-spacing: -0.5px; line-height: 1; white-space: nowrap; }
 .topbar-sub  { font-family: var(--mono); font-size: 0.42rem; color: rgba(0,0,0,0.5); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* IG link */
@@ -357,7 +357,7 @@ body { font-family: var(--body); color: var(--k-black); -webkit-font-smoothing: 
 
 /* 3-column dashboard */
 .dashboard-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; background: var(--bg); border-bottom: 3px solid var(--k-black); }
-.dash-card { background: var(--bg2); padding: 14px 10px 12px; }
+.dash-card { background: var(--bg2); padding: 14px 10px 12px; display: flex; flex-direction: column; justify-content: space-between; }
 .dash-card-label { font-family: var(--mono); font-size: 0.44rem; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 4px; font-weight: 700; }
 .dash-card-value { font-family: var(--display); font-size: 1.5rem; font-weight: 900; color: var(--k-black); line-height: 1; }
 .dash-card-sub   { font-family: var(--mono); font-size: 0.46rem; color: #888; margin-top: 3px; }
